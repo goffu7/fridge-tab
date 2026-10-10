@@ -1,0 +1,20 @@
+# Render blueprint: one free web service that serves the API and the built React app.
+services:
+  - type: web
+    name: fridge-tab
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_AUTH_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

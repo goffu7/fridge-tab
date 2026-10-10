@@ -1,0 +1,1189 @@
+<title>Fridge Tab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;600;800&family=Kanit:wght@400;500;600&family=Mitr:wght@400;500;600&display=swap">
+<style>
+/* Layout: phone-first app shell — sticky app bar, one scrolling column, bottom tab bar with a centre scan button, bottom sheets for actions. Three skins (pink / vscode / dbz) x light/dark, chosen per viewer. */
+:root, :root[data-skin="pink"] {
+  --bg: #FFF4F7; --surface: #FFFFFF; --surface-2: #FCE8EF; --ink: #3B1E2B; --muted: #8A6273; --line: #F2D3DF;
+  --accent: #E895B2; --accent-ink: #3B1E2B; --accent-strong: #C2527A;
+  --owe: #C23B5A; --owed: #23866A; --warn: #A86400; --comment: #A07A8B;
+  --p1: #CF4479; --p2: #7656D6; --p3: #2A88A8;
+  --hero-bg: linear-gradient(140deg, #FAD0DE 0%, #E895B2 100%); --hero-ink: #3B1E2B;
+  --tabbar-bg: color-mix(in srgb, #FFFFFF 90%, transparent); --tabbar-ink: #8A6273; --tabbar-on: #C2527A;
+  --radius: 20px; --radius-sm: 12px; --card-border: 1px solid #F6DEE7; --card-shadow: 0 2px 4px rgb(194 82 122 / .06), 0 10px 24px rgb(194 82 122 / .08);
+  --btn-shadow: none;
+  --f-display: "Mitr", "IBM Plex Sans Thai", system-ui, sans-serif; --f-body: "IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif; --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --display-case: none; --display-track: -0.01em; --display-weight: 600;
+}
+:root[data-skin="pink"][data-mode="dark"] {
+  --bg: #1C1117; --surface: #281820; --surface-2: #34202A; --ink: #FBE8F0; --muted: #BE95A7; --line: #43303A;
+  --accent: #E895B2; --accent-ink: #2A0F1B; --accent-strong: #F4B3CA;
+  --owe: #FF8DA4; --owed: #72D6B1; --warn: #F2B657; --comment: #9F7C8C;
+  --p1: #F592B8; --p2: #B7A0FF; --p3: #80D0EA;
+  --hero-bg: linear-gradient(140deg, #4E2336 0%, #8C4864 100%); --hero-ink: #FFF0F5;
+  --tabbar-bg: color-mix(in srgb, #281820 90%, transparent); --tabbar-ink: #BE95A7; --tabbar-on: #F4B3CA;
+  --card-border: 1px solid #3A2630; --card-shadow: 0 2px 4px rgb(0 0 0 / .25), 0 10px 24px rgb(0 0 0 / .25);
+  color-scheme: dark;
+}
+:root[data-skin="vscode"] {
+  --bg: #F3F3F3; --surface: #FFFFFF; --surface-2: #F3F3F3; --ink: #1F1F1F; --muted: #6E6E6E; --line: #E2E2E2;
+  --accent: #005FB8; --accent-ink: #FFFFFF; --accent-strong: #005FB8;
+  --owe: #A1260D; --owed: #098658; --warn: #8A6100; --comment: #008000;
+  --p1: #0451A5; --p2: #A31515; --p3: #AF00DB;
+  --hero-bg: #FFFFFF; --hero-ink: #1F1F1F;
+  --tabbar-bg: #005FB8; --tabbar-ink: #DCEBFA; --tabbar-on: #FFFFFF;
+  --radius: 4px; --radius-sm: 3px; --card-border: 1px solid #E2E2E2; --card-shadow: none;
+  --btn-shadow: none;
+  --f-display: "JetBrains Mono", "IBM Plex Sans Thai", ui-monospace, Consolas, monospace; --f-body: "Segoe UI", "IBM Plex Sans Thai", system-ui, -apple-system, sans-serif; --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --display-case: none; --display-track: -0.02em; --display-weight: 800;
+}
+:root[data-skin="vscode"][data-mode="dark"] {
+  --bg: #1E1E1E; --surface: #252526; --surface-2: #2D2D30; --ink: #D4D4D4; --muted: #8C8C8C; --line: #3C3C3C;
+  --accent: #007ACC; --accent-ink: #FFFFFF; --accent-strong: #3794FF;
+  --owe: #F48771; --owed: #4EC9B0; --warn: #CCA700; --comment: #6A9955;
+  --p1: #569CD6; --p2: #CE9178; --p3: #C586C0;
+  --hero-bg: #252526; --hero-ink: #D4D4D4;
+  --tabbar-bg: #007ACC; --tabbar-ink: #CFE6F7; --tabbar-on: #FFFFFF;
+  --card-border: 1px solid #333333;
+  color-scheme: dark;
+}
+:root[data-skin="dbz"] {
+  --bg: #EEF4FF; --surface: #FFFFFF; --surface-2: #FFF1D6; --ink: #14213D; --muted: #56658A; --line: #D3DDF0;
+  --accent: #F57C00; --accent-ink: #FFFFFF; --accent-strong: #D96500;
+  --owe: #D62828; --owed: #1D8A4F; --warn: #A86A00; --comment: #1D4ED8;
+  --p1: #E86F00; --p2: #1D4ED8; --p3: #2F9E44;
+  --hero-bg: radial-gradient(circle at 85% 15%, #FFE066 0%, #FFB020 28%, #F57C00 62%, #C2410C 100%); --hero-ink: #FFFFFF;
+  --tabbar-bg: color-mix(in srgb, #FFFFFF 92%, transparent); --tabbar-ink: #56658A; --tabbar-on: #F57C00;
+  --radius: 14px; --radius-sm: 10px; --card-border: 2.5px solid #14213D; --card-shadow: 4px 4px 0 #14213D;
+  --btn-shadow: 0 3px 0 #14213D;
+  --f-display: "Bangers", "Kanit", system-ui, sans-serif; --f-body: "Kanit", "IBM Plex Sans Thai", system-ui, sans-serif; --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --display-case: uppercase; --display-track: 0.04em; --display-weight: 400;
+}
+:root[data-skin="dbz"][data-mode="dark"] {
+  --bg: #0A0F24; --surface: #141B3A; --surface-2: #1D2650; --ink: #EFF3FF; --muted: #9AA6D2; --line: #2B3568;
+  --accent: #FFB020; --accent-ink: #1A1200; --accent-strong: #FFC94A;
+  --owe: #FF6B6B; --owed: #5BE39A; --warn: #FFD166; --comment: #7FB2FF;
+  --p1: #FF9F1C; --p2: #5AA9FF; --p3: #6EE07A;
+  --hero-bg: radial-gradient(circle at 85% 12%, #FFF3B0 0%, #FFC94A 22%, #FF8A00 48%, #5B21B6 100%); --hero-ink: #FFFFFF;
+  --tabbar-bg: color-mix(in srgb, #141B3A 92%, transparent); --tabbar-ink: #9AA6D2; --tabbar-on: #FFB020;
+  --card-border: 2.5px solid #000000; --card-shadow: 4px 4px 0 #000000; --btn-shadow: 0 3px 0 #000000;
+  color-scheme: dark;
+}
+/* Before the theme script runs */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode]):not([data-theme="light"]) { --bg: #1C1117; --surface: #281820; --ink: #FBE8F0; --muted: #BE95A7; --line: #43303A; color-scheme: dark; }
+}
+:root[data-theme="dark"]:not([data-mode]) { --bg: #1C1117; --surface: #281820; --ink: #FBE8F0; --muted: #BE95A7; --line: #43303A; color-scheme: dark; }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15.5px; line-height: 1.5; min-height: 100%; transition: background-color .25s; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; touch-action: manipulation; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: var(--display-weight); text-transform: var(--display-case); letter-spacing: var(--display-track); margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 22px; } h2 { font-size: 18px; } h3 { font-size: 16px; }
+[data-skin="dbz"] h1 { font-size: 28px; } [data-skin="dbz"] h2 { font-size: 23px; }
+p { margin: 0; }
+.muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 12px; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.pos { color: var(--owed); } .neg { color: var(--owe); }
+.lucide { width: 20px; height: 20px; stroke-width: 2; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* App bar */
+.appbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.appbar-in { max-width: 640px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
+.brand h1 { white-space: nowrap; }
+.brand .sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mark { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; }
+.mark-pink { background: var(--accent); color: var(--accent-ink); }
+.mark-vscode { border-radius: 4px; background: var(--accent); color: #fff; font-family: var(--f-mono); font-weight: 800; font-size: 14px; }
+.mark-dbz { background: radial-gradient(circle at 35% 30%, #FFF4C2 0 12%, #FFB020 30%, #F57C00 70%, #B84300 100%); box-shadow: inset -3px -3px 6px rgb(0 0 0 / .25); color: #D62828; font-size: 9px; letter-spacing: -1px; line-height: .85; text-align: center; padding-top: 2px; }
+.only-pink, .only-vscode, .only-dbz { display: none !important; }
+[data-skin="pink"] .only-pink, [data-skin="vscode"] .only-vscode, [data-skin="dbz"] .only-dbz { display: grid !important; }
+:root:not([data-skin]) .only-pink { display: grid !important; }
+.iconbtn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--ink); position: relative; flex: none; }
+[data-skin="vscode"] .iconbtn { border-radius: 4px; }
+.me-badge { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: var(--surface); background: var(--c, var(--muted)); border: 0; flex: none; }
+
+/* Page */
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 6px calc(130px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 18px; }
+.section { display: flex; flex-direction: column; gap: 10px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+[data-skin="vscode"] .sec-head h2::before { content: "// "; color: var(--comment); }
+.card { background: var(--surface); border-radius: var(--radius); border: var(--card-border); box-shadow: var(--card-shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.grow { flex: 1; min-width: 0; }
+
+/* Buttons */
+.btn { min-height: 44px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-sm); padding: 9px 15px; font-weight: 500; font-size: 14.5px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; box-shadow: var(--btn-shadow); transition: transform .08s, filter .15s; }
+.btn:active { transform: translateY(1px); }
+.btn .lucide { width: 18px; height: 18px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+[data-skin="dbz"] .btn { border: 2px solid var(--ink); font-weight: 600; }
+[data-skin="dbz"][data-mode="dark"] .btn { border-color: #000; }
+[data-skin="dbz"] .btn.primary { border-color: var(--ink); }
+[data-skin="dbz"][data-mode="dark"] .btn.primary { border-color: #000; }
+.btn.danger { color: var(--owe); }
+.btn.ghost { border-color: transparent; background: transparent; box-shadow: none; color: var(--muted); padding-inline: 10px; }
+.btn.block { width: 100%; }
+.btn.lg { min-height: 52px; font-size: 16px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+:focus-visible { outline: 2.5px solid var(--accent-strong); outline-offset: 2px; }
+
+input[type=text], input[type=date], input[type=tel], input:not([type]) {
+  font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 11px; min-width: 0; width: 100%; min-height: 44px;
+}
+input:focus { border-color: var(--accent-strong); outline: none; }
+label.field { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0; flex: 1; }
+
+/* Chips */
+.chip { --c: var(--muted); min-height: 36px; border: 1.5px solid color-mix(in srgb, var(--c) 45%, var(--line)); background: transparent; color: var(--c); border-radius: 999px; padding: 4px 12px 4px 5px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2; }
+.chip .dot { width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--c) 18%, transparent); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.chip.on { background: var(--c); color: var(--surface); border-color: var(--c); }
+.chip.on .dot { background: color-mix(in srgb, var(--surface) 28%, transparent); }
+.chip.static { cursor: default; min-height: 30px; padding-block: 2px; }
+.chip.static .dot { width: 22px; height: 22px; }
+.chip.label { padding-left: 12px; }
+[data-skin="vscode"] .chip { border-radius: 3px; }
+.c-p1 { --c: var(--p1); } .c-p2 { --c: var(--p2); } .c-p3 { --c: var(--p3); }
+.who { font-weight: 600; color: var(--c); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill .lucide { width: 13px; height: 13px; }
+.pill.ok { background: color-mix(in srgb, var(--owed) 15%, var(--surface)); color: var(--owed); }
+.pill.bad { background: color-mix(in srgb, var(--owe) 13%, var(--surface)); color: var(--owe); }
+.pill.wait { background: color-mix(in srgb, var(--warn) 15%, var(--surface)); color: var(--warn); }
+
+/* Hero */
+.hero { background: var(--hero-bg); color: var(--hero-ink); padding: 20px 18px 18px; position: relative; overflow: hidden; gap: 4px; }
+.hero .label { font-size: 14px; opacity: .85; }
+.hero .big { font-family: var(--f-display); font-weight: var(--display-weight); font-size: 46px; line-height: 1; letter-spacing: var(--display-track); font-variant-numeric: tabular-nums; position: relative; }
+.hero .meta { font-size: 13px; opacity: .85; position: relative; }
+[data-skin="dbz"] .hero .big { font-size: 58px; -webkit-text-stroke: 1.5px #14213D; text-shadow: 3px 3px 0 #14213D; }
+[data-skin="dbz"] .hero::before { content: ""; position: absolute; inset: -40%; background: repeating-conic-gradient(from 0deg at 85% 15%, rgb(255 255 255 / .16) 0deg 4deg, transparent 4deg 12deg); pointer-events: none; }
+[data-skin="vscode"] .hero { border-left: 3px solid var(--accent); }
+[data-skin="vscode"] .hero .label { font-family: var(--f-mono); color: var(--comment); opacity: 1; font-size: 13px; }
+[data-skin="vscode"] .hero .label::before { content: "// "; }
+[data-skin="vscode"] .hero .big { font-size: 40px; }
+[data-skin="pink"] .hero::after { content: ""; position: absolute; right: -30px; top: -30px; width: 140px; height: 140px; border-radius: 50%; background: rgb(255 255 255 / .22); }
+
+/* Debts */
+.debt { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; padding-block: 14px; border-top: 1px dashed var(--line); }
+.debt:first-child { border-top: 0; padding-top: 0; }
+.debt .amt { font-family: var(--f-mono); font-weight: 600; font-size: 20px; font-variant-numeric: tabular-nums; }
+.debt .acts { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+.debt .acts .btn { flex: 1; }
+.verb { color: var(--muted); font-size: 13.5px; }
+.msgbox { grid-column: 1 / -1; font-size: 14px; white-space: pre-wrap; background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; user-select: all; -webkit-user-select: all; }
+.pplrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding-block: 10px; border-top: 1px solid var(--line); }
+.pplrow:first-child { border-top: 0; padding-top: 0; }
+.pplrow .num { font-weight: 600; text-align: right; }
+
+/* Requests */
+.req { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; }
+.thumb { width: 56px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; color: var(--muted); padding: 0; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.req .acts { grid-column: 1 / -1; display: flex; gap: 8px; }
+.req .acts .btn { flex: 1; }
+.req + .req { border-top: 1px dashed var(--line); padding-top: 14px; }
+
+/* Draft stack */
+.stackbar { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; margin-inline: -2px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.dpill { flex: none; scroll-snap-align: start; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); background: var(--surface); min-height: 52px; text-align: left; box-shadow: var(--btn-shadow); }
+.dpill.on { border-color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 14%, var(--surface)); }
+.dpill .tn { width: 34px; height: 40px; border-radius: 6px; background: var(--surface-2); overflow: hidden; display: grid; place-items: center; font-family: var(--f-mono); font-size: 13px; font-weight: 600; color: var(--muted); }
+.dpill .tn img { width: 100%; height: 100%; object-fit: cover; }
+.dpill b { font-size: 13.5px; display: block; line-height: 1.2; }
+.dpill .st { font-size: 11.5px; color: var(--muted); }
+.dpill .st.ok { color: var(--owed); } .dpill .st.wait { color: var(--warn); } .dpill .st.bad { color: var(--owe); }
+.dpill.add { border-style: dashed; color: var(--muted); padding-left: 12px; }
+
+/* Receipt slip */
+.slip { background: var(--surface); padding: 16px 14px 26px; display: flex; flex-direction: column; gap: 12px; border-radius: var(--radius) var(--radius) 0 0; filter: drop-shadow(0 4px 10px rgb(0 0 0 / .08));
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 16px 10px repeat-x;
+          mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 16px 10px repeat-x; }
+[data-skin="vscode"] .slip { -webkit-mask: none; mask: none; border-radius: 4px; border: 1px solid var(--line); padding-bottom: 16px; filter: none; }
+[data-skin="dbz"] .slip { border: 2.5px solid var(--ink); -webkit-mask: none; mask: none; filter: none; box-shadow: 4px 4px 0 var(--ink); border-radius: var(--radius); padding-bottom: 16px; }
+[data-skin="dbz"][data-mode="dark"] .slip { border-color: #000; box-shadow: 4px 4px 0 #000; }
+.slip-head { font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: .05em; border-bottom: 1px dashed var(--line); padding-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+.slip-title { text-align: center; }
+.vs-tab { font-family: var(--f-mono); font-size: 12.5px; color: var(--ink); background: var(--surface-2); border-top: 2px solid var(--accent); padding: 5px 10px; align-self: flex-start; border-radius: 0; }
+.item { display: flex; flex-direction: column; gap: 8px; padding-block: 12px; border-bottom: 1px dashed var(--line); counter-increment: ln; }
+.items { counter-reset: ln; }
+.item-top { display: grid; grid-template-columns: 1fr 92px 40px; gap: 6px; align-items: start; }
+[data-skin="vscode"] .item-top { grid-template-columns: 22px 1fr 92px 40px; }
+[data-skin="vscode"] .item-top::before { content: counter(ln); font-family: var(--f-mono); font-size: 12px; color: var(--muted); text-align: right; padding-top: 12px; }
+.item-top input { border-color: transparent; background: transparent; padding-inline: 6px; }
+.item-top input:focus { border-color: var(--accent-strong); background: var(--surface); }
+.item .price input { font-family: var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.item .en { font-size: 12.5px; color: var(--muted); padding-inline: 7px; }
+.item .eaters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.item .need { font-size: 12.5px; color: var(--warn); font-weight: 600; }
+.item.neg .price input { color: var(--owed); }
+.x-btn { width: 40px; height: 44px; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; border-radius: var(--radius-sm); }
+.split-hint { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); margin-left: auto; }
+.totals { font-family: var(--f-mono); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.totals .row { justify-content: space-between; flex-wrap: nowrap; }
+.totals .grand { font-size: 17px; font-weight: 600; border-top: 1px dashed var(--line); padding-top: 8px; }
+.bulk { background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.eyebrow { font-size: 11.5px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+
+.scan-drop { border: 2px dashed color-mix(in srgb, var(--accent) 60%, var(--line)); border-radius: var(--radius); padding: 28px 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; background: color-mix(in srgb, var(--accent) 7%, var(--surface)); width: 100%; }
+.scan-drop.drag { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+.scan-drop .big { font-family: var(--f-display); font-weight: var(--display-weight); text-transform: var(--display-case); letter-spacing: var(--display-track); font-size: 24px; }
+.scan-drop .lucide { width: 36px; height: 36px; color: var(--accent-strong); }
+.scanning { display: flex; gap: 12px; align-items: center; }
+.scanning img { width: 54px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+.bar { height: 5px; border-radius: 5px; background: var(--line); overflow: hidden; flex: 1; min-width: 60px; }
+.bar::after { content: ""; display: block; height: 100%; width: 35%; background: var(--accent); border-radius: 5px; animation: slide 1.3s ease-in-out infinite; }
+@keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+.note { border-radius: var(--radius-sm); padding: 11px 13px; font-size: 14px; background: color-mix(in srgb, var(--warn) 13%, var(--surface)); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.note.info { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
+.note.err { background: color-mix(in srgb, var(--owe) 12%, var(--surface)); }
+.note > span { flex: 1; min-width: 180px; }
+
+/* History */
+.hist { display: flex; flex-direction: column; gap: 10px; }
+.bill { padding: 0; gap: 0; overflow: hidden; }
+.bill-sum { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px 14px; width: 100%; text-align: left; background: transparent; border: 0; min-height: 64px; }
+.date-tile { width: 46px; text-align: center; font-family: var(--f-mono); line-height: 1.1; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 5px 0; }
+.date-tile b { display: block; font-size: 17px; }
+.date-tile span { font-size: 10.5px; text-transform: uppercase; color: var(--muted); }
+.bill-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+.bill-items { font-size: 14px; display: flex; flex-direction: column; gap: 5px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.bill-items .r { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.bill-items .r small { color: var(--muted); }
+.pay-row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; }
+.pay-row .date-tile { border-style: dashed; }
+.pay-row.declined { opacity: .6; }
+
+/* Settings */
+.skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.skin { border: 2px solid var(--line); border-radius: var(--radius-sm); padding: 0; overflow: hidden; background: var(--surface); text-align: left; display: flex; flex-direction: column; }
+.skin.on { border-color: var(--accent-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.skin .pv { height: 64px; display: grid; grid-template-columns: 1fr 1fr; }
+.skin .pv i { display: block; }
+.skin span { padding: 8px 10px; font-size: 13px; font-weight: 600; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-2); border-radius: var(--radius-sm); padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; border-radius: calc(var(--radius-sm) - 3px); min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgb(0 0 0 / .12); }
+.person-edit { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; }
+.person-edit .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.person-edit + .person-edit { border-top: 1px solid var(--line); padding-top: 12px; }
+
+/* Tab bar */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; background: var(--tabbar-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+[data-skin="vscode"] .tabs { border-top: 0; }
+[data-skin="dbz"] .tabs { border-top: 2.5px solid var(--ink); }
+[data-skin="dbz"][data-mode="dark"] .tabs { border-top-color: #000; }
+.tabs nav { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; }
+.tabs button.t { border: 0; background: none; min-height: 58px; padding: 8px 2px 8px; font-size: 11.5px; color: var(--tabbar-ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-weight: 500; position: relative; }
+.tabs button.t[aria-current="page"] { color: var(--tabbar-on); font-weight: 700; }
+.tabs .lucide { width: 23px; height: 23px; }
+.fab { width: 60px; height: 60px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; margin: -22px auto 6px; box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 45%, transparent); }
+.fab .lucide { width: 28px; height: 28px; }
+[data-skin="vscode"] .fab { border-radius: 6px; background: #FFFFFF; color: #005FB8; box-shadow: 0 4px 12px rgb(0 0 0 / .25); }
+[data-skin="dbz"] .fab { border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: radial-gradient(circle at 35% 30%, #FFF4C2 0 10%, #FFB020 32%, #F57C00 72%); color: #7A1B00; }
+[data-skin="dbz"][data-mode="dark"] .fab { border-color: #000; box-shadow: 0 4px 0 #000; }
+.badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--owe); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+
+/* Sticky action bar (add tab) */
+.actionbar { position: fixed; left: 0; right: 0; bottom: calc(58px + env(safe-area-inset-bottom, 0px)); z-index: 6; padding: 10px 16px; background: linear-gradient(to top, var(--bg) 70%, transparent); }
+.actionbar .in { max-width: 640px; margin: 0 auto; display: flex; gap: 8px; }
+.actionbar .btn { flex: 1; }
+
+/* Bottom sheet */
+.backdrop { position: fixed; inset: 0; z-index: 20; background: rgb(10 5 10 / .5); display: flex; align-items: flex-end; justify-content: center; animation: fade .18s ease-out; }
+.sheet { background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0; padding: 8px 18px calc(18px + env(safe-area-inset-bottom, 0px)); max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 14px; animation: up .22s cubic-bezier(.2,.9,.3,1); }
+[data-skin="vscode"] .sheet { border-radius: 6px 6px 0 0; border-top: 2px solid var(--accent); }
+[data-skin="dbz"] .sheet { border: 3px solid var(--ink); border-bottom: 0; }
+[data-skin="dbz"][data-mode="dark"] .sheet { border-color: #000; }
+.handle { width: 40px; height: 5px; border-radius: 3px; background: var(--line); align-self: center; margin-bottom: 2px; }
+.sheet-head { display: flex; align-items: center; gap: 10px; }
+.sheet-head h2 { flex: 1; }
+.sheet .slip-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: var(--radius-sm); background: var(--surface-2); }
+.amount-in input { font-family: var(--f-mono); font-size: 28px; font-weight: 600; text-align: center; min-height: 60px; }
+.quick { display: flex; gap: 8px; flex-wrap: wrap; }
+.quick .btn { min-height: 38px; padding: 6px 12px; font-size: 13.5px; flex: 1; }
+@keyframes up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (min-width: 700px) {
+  .backdrop { align-items: center; }
+  .sheet { border-radius: var(--radius); max-height: 86dvh; padding-bottom: 20px; }
+  .handle { display: none; }
+}
+.toast { position: fixed; left: 50%; bottom: calc(132px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; z-index: 30; box-shadow: 0 6px 20px rgb(0 0 0 / .25); max-width: calc(100% - 32px); text-align: center; }
+.empty { text-align: center; padding: 22px 12px; align-items: center; }
+.empty .big { font-family: var(--f-display); font-weight: var(--display-weight); text-transform: var(--display-case); letter-spacing: var(--display-track); font-size: 21px; }
+.empty .lucide { width: 34px; height: 34px; color: var(--accent-strong); }
+@media (max-width: 380px) {
+  .item-top { grid-template-columns: 1fr 78px 36px; }
+  [data-skin="vscode"] .item-top { grid-template-columns: 18px 1fr 78px 36px; }
+  .hero .big { font-size: 40px; }
+  .person-edit .fields { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+<script>
+(function () {
+  var r = document.documentElement, skin = "pink", mode = "auto";
+  try { skin = localStorage.getItem("ft.skin") || "pink"; mode = localStorage.getItem("ft.mode") || "auto"; } catch (e) {}
+  if (["pink", "vscode", "dbz"].indexOf(skin) < 0) skin = "pink";
+  var mq = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
+  window.__ft = { skin: skin, mode: mode };
+  window.__ftApply = function () {
+    var t = window.__ft, host = r.getAttribute("data-theme");
+    var sys = host === "dark" || host === "light" ? host : (mq && mq.matches ? "dark" : "light");
+    r.setAttribute("data-skin", t.skin);
+    r.setAttribute("data-mode", t.mode === "auto" ? sys : t.mode);
+  };
+  window.__ftApply();
+  try { mq && mq.addEventListener("change", window.__ftApply); } catch (e) {}
+  try { new MutationObserver(window.__ftApply).observe(r, { attributes: true, attributeFilter: ["data-theme"] }); } catch (e) {}
+})();
+</script>
+
+<header class="appbar"><div class="appbar-in" id="appbar"><div class="brand"><h1>Fridge Tab</h1></div></div></header>
+<main class="wrap" id="app" aria-live="polite">
+  <div class="card empty"><p class="big">Opening the tab…</p><p class="muted">Your shared bills and who owes whom will show here.</p></div>
+</main>
+<div id="actionbar"></div>
+<div class="tabs"><nav id="tabs" aria-label="Sections"></nav></div>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<input type="file" id="scan-file" accept="image/*" multiple hidden>
+<input type="file" id="slip-file" accept="image/*" hidden>
+
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.js"></script>
+<script>
+(() => {
+/* ================= helpers ================= */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+const num = (v) => { const n = parseFloat(String(v ?? "").replace(/[,฿\s]/g, "")); return Number.isFinite(n) ? n : 0; };
+const fmt = (n) => { n = r2(n); const neg = n < 0; n = Math.abs(n); return (neg ? "−" : "") + "฿" + n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 }); };
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5);
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const dParts = (iso) => { const [y, m, d] = String(iso || today()).split("-").map(Number); return { y, m, d }; };
+const shortDate = (iso) => { const p = dParts(iso); return p.d + " " + MONTHS[(p.m || 1) - 1]; };
+const ago = (t) => { const s = (Date.now() - t) / 1000; if (s < 60) return "just now"; if (s < 3600) return Math.floor(s / 60) + " min ago"; if (s < 86400) return Math.floor(s / 3600) + " h ago"; return Math.floor(s / 86400) + " d ago"; };
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const ic = (n) => `<i data-lucide="${n}"></i>`;
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const reduceMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+function celebrate() {
+  if (!window.confetti || reduceMotion()) return;
+  const cs = getComputedStyle(document.documentElement);
+  const colors = ["--accent", "--p1", "--p2", "--p3"].map((v) => cs.getPropertyValue(v).trim()).filter(Boolean);
+  window.confetti({ particleCount: 90, spread: 75, startVelocity: 38, origin: { y: 0.75 }, colors, disableForReducedMotion: true });
+}
+
+/* ================= state ================= */
+const DEFAULT_PEOPLE = [
+  { id: "p1", name: "Me", promptpay: "", uid: null },
+  { id: "p2", name: "Roommate 2", promptpay: "", uid: null },
+  { id: "p3", name: "Roommate 3", promptpay: "", uid: null },
+];
+function loadDrafts() {
+  const ds = ls.get("ft.drafts", null) || (ls.get("ft.draft", null) ? [ls.get("ft.draft", null)] : []);
+  return (Array.isArray(ds) ? ds : []).filter(Boolean).map((d) => {
+    d.items = Array.isArray(d.items) ? d.items : [];
+    if (d.status === "reading" || d.status === "queued") { d.status = "error"; d.err = "The scan was interrupted. Pick the photo again, or type the items in."; }
+    return d;
+  });
+}
+const S = {
+  mode: "loading",
+  people: DEFAULT_PEOPLE, hasSettings: false,
+  loaded: { settings: false, bills: false },
+  bills: [], payByUid: {}, reqByUid: {},
+  myUid: null,
+  tab: ls.get("ft.tab", "home"),
+  drafts: loadDrafts(), cur: null,
+  imagesOk: false, readOnly: false, saving: false,
+  sheet: null, openBill: null, namesDraft: null, msg: null,
+};
+if (!["home", "history", "add", "requests", "settings"].includes(S.tab)) S.tab = "home";
+S.cur = S.drafts[0]?.id || null;
+let db = null, sample = null;
+const scanFiles = new Map(), previews = new Map(), scanCtls = new Map();
+let scanRunning = 0;
+
+/* ================= people & identity ================= */
+const person = (id) => S.people.find((p) => p.id === id) || { id, name: "Someone", promptpay: "", uid: null };
+const pname = (id) => person(id).name || "Someone";
+const pclass = (id) => "c-" + (["p1", "p2", "p3"].includes(id) ? id : "p1");
+const initial = (id) => (pname(id).trim()[0] || "?").toUpperCase();
+const slotOf = (u) => (u ? S.people.find((p) => p.uid === u)?.id || null : null);
+const me = () => slotOf(S.myUid);
+const chip = (id, { on = false, act = "", attrs = "", label } = {}) =>
+  `<button type="button" class="chip ${pclass(id)} ${on ? "on" : ""} ${act ? "" : "static"}" ${act ? `data-act="${act}"` : 'tabindex="-1"'} ${attrs} aria-pressed="${on}"><span class="dot">${esc(initial(id))}</span>${esc(label ?? pname(id))}</button>`;
+
+/* ================= money ================= */
+function itemShares(it) {
+  const ids = (it.eaters || []).filter((e) => S.people.some((p) => p.id === e));
+  if (!ids.length) return {};
+  const each = num(it.price) / ids.length, out = {};
+  ids.forEach((e) => (out[e] = each));
+  return out;
+}
+function billShares(b) { const out = {}; for (const it of b.items || []) for (const [k, v] of Object.entries(itemShares(it))) out[k] = (out[k] || 0) + v; return out; }
+const billTotal = (b) => (b.items || []).reduce((s, it) => s + num(it.price), 0);
+
+let D = null; // derived data, rebuilt every render
+function derive() {
+  const ids = S.people.map((p) => p.id);
+  const payments = [];
+  for (const [u, docs] of Object.entries(S.payByUid)) {
+    const slot = slotOf(u); if (!slot) continue;
+    for (const d of docs) if (d.to === slot && d.from !== slot && ids.includes(d.from)) payments.push(d);
+  }
+  const accepted = payments.filter((p) => p.status !== "declined" && num(p.amount) > 0);
+  const requests = [];
+  for (const [u, docs] of Object.entries(S.reqByUid)) {
+    const slot = slotOf(u); if (!slot) continue;
+    for (const d of docs) if (d.from === slot && d.to !== slot && ids.includes(d.to)) {
+      const dec = payments.find((p) => p.requestId === d.id);
+      requests.push({ ...d, status: dec ? dec.status : "pending", decision: dec || null });
+    }
+  }
+  const owe = {}; const k = (a, b) => a + ">" + b;
+  const paid = {}, ate = {}, net = {};
+  ids.forEach((i) => { paid[i] = 0; ate[i] = 0; net[i] = 0; });
+  for (const b of S.bills) {
+    if (!ids.includes(b.payer)) continue;
+    paid[b.payer] += billTotal(b);
+    for (const [e, amt] of Object.entries(billShares(b))) { ate[e] += amt; if (e !== b.payer) owe[k(e, b.payer)] = (owe[k(e, b.payer)] || 0) + amt; }
+  }
+  for (const p of accepted) owe[k(p.from, p.to)] = (owe[k(p.from, p.to)] || 0) - num(p.amount);
+  const debts = [];
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+    const a = ids[i], b = ids[j], d = r2((owe[k(a, b)] || 0) - (owe[k(b, a)] || 0));
+    if (d > 0.009) debts.push({ from: a, to: b, amount: d }); else if (d < -0.009) debts.push({ from: b, to: a, amount: -d });
+  }
+  debts.forEach((d) => { net[d.to] += d.amount; net[d.from] -= d.amount; });
+  debts.sort((x, y) => y.amount - x.amount);
+  const pending = requests.filter((r) => r.status === "pending");
+  return { payments, accepted, requests, pending, debts, net, paid, ate };
+}
+function reminderText(t) {
+  const lastPay = Math.max(0, ...D.accepted.filter((p) => p.from === t.from && p.to === t.to).map((p) => p.createdAt || 0));
+  let count = 0, oldest = null;
+  for (const b of S.bills) {
+    if (b.payer !== t.to || (b.createdAt || 0) <= lastPay) continue;
+    for (const it of b.items || []) if ((it.eaters || []).includes(t.from)) { count++; if (!oldest || b.date < oldest) oldest = b.date; }
+  }
+  let m = `Hi ${pname(t.from)}! Food tab: you owe ${pname(t.to)} ${fmt(t.amount)}`;
+  if (count) m += ` (${count} item${count > 1 ? "s" : ""} since ${shortDate(oldest)})`;
+  m += ".";
+  const pp = person(t.to).promptpay; if (pp) m += `\nPromptPay: ${pp}`;
+  m += "\nSend it with a slip in Fridge Tab when your salary is in.";
+  return m;
+}
+
+/* ================= store ================= */
+const payCol = (u) => `receipts/${u}/pay`;
+const reqCol = (u) => `requests/${u}/items`;
+const mem = { pay: {}, req: {} }; // example mode only
+const store = {
+  async saveBill(b) { if (db) return db.collection("bills").doc(b.id).set(b); S.bills = S.bills.filter((x) => x.id !== b.id).concat([b]); },
+  async deleteBill(id) { if (db) return db.collection("bills").doc(id).delete(); S.bills = S.bills.filter((x) => x.id !== id); },
+  async saveSettings(people) { if (db) return db.doc("house/settings").set({ people }); S.people = people; S.hasSettings = true; },
+  async savePay(p) { if (db) return db.collection(payCol(S.myUid)).doc(p.id).set(p); const a = (S.payByUid[S.myUid] ||= []); S.payByUid[S.myUid] = a.filter((x) => x.id !== p.id).concat([p]); },
+  async deletePay(id) { if (db) return db.collection(payCol(S.myUid)).doc(id).delete(); S.payByUid[S.myUid] = (S.payByUid[S.myUid] || []).filter((x) => x.id !== id); },
+  async saveReq(r) { if (db) return db.collection(reqCol(S.myUid)).doc(r.id).set(r); const a = (S.reqByUid[S.myUid] ||= []); S.reqByUid[S.myUid] = a.filter((x) => x.id !== r.id).concat([r]); },
+  async deleteReq(id) { if (db) return db.collection(reqCol(S.myUid)).doc(id).delete(); S.reqByUid[S.myUid] = (S.reqByUid[S.myUid] || []).filter((x) => x.id !== id); },
+};
+async function write(fn, okMsg) {
+  if (S.readOnly) { toast("You can view this tab but not change it. Ask the owner for edit access."); return false; }
+  try { await fn(); if (okMsg) toast(okMsg); render(); return true; }
+  catch (e) {
+    if (e?.code === "invalid_argument") toast("That change was refused. Only the person owed can record their own payments.");
+    else if (e?.code === "quota_exceeded") toast("Storage is full. Delete some old bills and try again.");
+    else toast("Couldn't save. Check your connection and try again.");
+    render(); return false;
+  }
+}
+
+/* ================= bill drafts (stack) ================= */
+const newDraft = () => ({ id: uid(), date: today(), store: "7-Eleven", payer: me() || S.people[0].id, items: [], receiptTotal: null, createdAt: null, editing: false, status: "manual", err: "" });
+const newItem = () => ({ id: uid(), name: "", en: "", price: "", eaters: [] });
+const curDraft = () => S.drafts.find((d) => d.id === S.cur) || null;
+let draftTimer = null;
+function persistDrafts(soon) {
+  const save = () => ls.set("ft.drafts", S.drafts.map((d) => ({ ...d })));
+  clearTimeout(draftTimer);
+  if (soon) draftTimer = setTimeout(save, 300); else save();
+}
+const realItems = (d) => d.items.filter((i) => (i.name || "").trim() || num(i.price));
+function draftState(d) {
+  if (d.status === "queued") return { t: "Waiting", c: "wait" };
+  if (d.status === "reading") return { t: "Reading…", c: "wait" };
+  if (d.status === "error" && !realItems(d).length) return { t: "Couldn't read", c: "bad" };
+  const items = realItems(d);
+  if (!items.length) return { t: "Empty", c: "" };
+  const n = items.filter((i) => !i.eaters.length).length;
+  return n ? { t: `${n} to tick`, c: "wait" } : { t: "Ready", c: "ok" };
+}
+const isReady = (d) => draftState(d).c === "ok";
+
+const SCAN_PROMPT = `You are reading a photo of a receipt from a Thai convenience store (usually 7-Eleven). Three roommates will split it item by item.
+Extract the purchased lines:
+- One entry per purchased line. If a line has quantity N greater than 1 (and N is at most 6), output N separate entries, each with the unit price, so each unit can be assigned to a different person.
+- Discounts or promotions (ส่วนลด, negative amounts, "-") are their own entry with a NEGATIVE price.
+- Skip subtotal, total, VAT, cash, change, card, points, member and barcode lines.
+- "name": the product name as printed (Thai is fine). "en": a short plain-English description, 2 to 4 words.
+- "price": number in baht for that entry.
+- "date": the purchase date as YYYY-MM-DD in the Gregorian calendar. Thai receipts usually print the Buddhist year (e.g. 2569 = 2026, or two digits like 69 = 2026): subtract 543. If you cannot read the date clearly, or the result is not within the last 2 years, use null.
+- "total": the grand total printed on the receipt as a number, or null.
+Reply with only JSON in this shape:
+{"store":"7-Eleven","date":"2026-10-10","total":87,"items":[{"name":"ข้าวกะเพราไก่","en":"Basil chicken rice","price":45}]}`;
+const SCAN_ERR = {
+  not_granted: "Reading receipts needs permission to use Claude. You can still type items in.",
+  sampling_disabled: "Claude isn't available on this account, so receipts can't be read here.",
+  images_unavailable: "Photos can't be sent from this view. Type items in instead.",
+  image_rejected: "That file couldn't be read. Try a JPG or PNG photo under 20 MB.",
+  rate_limited: "Too many scans at once. Wait a minute, then tap Rescan.",
+  invalid_json: "The receipt was hard to read. Try a flatter, sharper photo.",
+  empty_completion: "No items found on that photo. Try a flatter, sharper photo.",
+  refused: "That photo couldn't be read as a receipt.",
+  session_expired: "Sign in to Claude again, then tap Rescan.",
+};
+function enqueueScans(files) {
+  const list = Array.from(files || []).filter((f) => f.type.startsWith("image/")).slice(0, 12);
+  if (!list.length) return;
+  let first = null;
+  const cur = curDraft();
+  list.forEach((f, i) => {
+    // reuse the open draft if it is still empty
+    const d = i === 0 && cur && !realItems(cur).length && cur.status !== "reading" && cur.status !== "queued" && !cur.editing ? cur : newDraft();
+    d.status = "queued"; d.err = "";
+    if (!S.drafts.includes(d)) S.drafts.push(d);
+    scanFiles.set(d.id, f);
+    if (previews.get(d.id)) URL.revokeObjectURL(previews.get(d.id));
+    previews.set(d.id, URL.createObjectURL(f));
+    first ||= d;
+  });
+  S.cur = first.id; S.tab = "add"; ls.set("ft.tab", "add");
+  if (list.length > 1) toast(`Reading ${list.length} receipts. Each one becomes its own bill.`);
+  pumpScans(); persistDrafts(); render();
+}
+function pumpScans() {
+  while (scanRunning < 2) {
+    const d = S.drafts.find((x) => x.status === "queued"); if (!d) break;
+    scanRunning++; d.status = "reading";
+    scanOne(d).finally(() => { scanRunning--; pumpScans(); persistDrafts(); render(); });
+  }
+}
+async function scanOne(d) {
+  const file = scanFiles.get(d.id);
+  if (!file || !sample) { d.status = "error"; d.err = "Pick the photo again to rescan."; return; }
+  const ctl = new AbortController(); scanCtls.set(d.id, ctl);
+  try {
+    const out = await sample.json(SCAN_PROMPT, { images: [file], signal: ctl.signal });
+    const items = (Array.isArray(out?.items) ? out.items : [])
+      .map((x) => ({ id: uid(), name: String(x?.name || x?.en || "Item").slice(0, 80), en: String(x?.en || "").slice(0, 60), price: String(r2(num(x?.price))), eaters: [] }))
+      .filter((x) => num(x.price) !== 0);
+    d.items = realItems(d).concat(items);
+    if (typeof out?.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(out.date)) {
+      const age = (Date.now() - new Date(out.date + "T12:00:00").getTime()) / 864e5;
+      if (age > -2 && age < 730) d.date = out.date;
+    }
+    if (out?.store) d.store = String(out.store).slice(0, 40);
+    d.receiptTotal = num(out?.total) || null;
+    d.status = items.length ? "manual" : "error";
+    d.err = items.length ? "" : SCAN_ERR.empty_completion;
+  } catch (e) {
+    d.status = "error";
+    d.err = e?.code === "cancelled" ? "Scan stopped." : SCAN_ERR[e?.code] || "Couldn't read the receipt. Tap Rescan, or type the items in.";
+    if (["not_granted", "sampling_disabled", "images_unavailable", "not_declared", "capability_disabled", "capability_removed"].includes(e?.code)) S.imagesOk = false;
+  } finally { scanCtls.delete(d.id); }
+}
+
+/* ================= image compression for payment slips ================= */
+async function compressImage(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    let max = 1100;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      for (const q of [0.72, 0.6, 0.48]) { const out = c.toDataURL("image/jpeg", q); if (out.length < 190000) return out; }
+      max = Math.round(max * 0.75);
+    }
+    throw new Error("too big");
+  } finally { URL.revokeObjectURL(url); }
+}
+
+/* ================= views ================= */
+function renderAppbar() {
+  const m = me();
+  const sub = S.mode === "demo" ? "example data" : S.people.map((p) => p.name).join(" · ");
+  const modeIcon = { auto: "sun-moon", light: "sun", dark: "moon" }[window.__ft.mode] || "sun-moon";
+  $("#appbar").innerHTML = `<div class="brand">
+      <span class="mark mark-pink only-pink">${ic("heart")}</span>
+      <span class="mark mark-vscode only-vscode">{}</span>
+      <span class="mark mark-dbz only-dbz">★★<br>★★</span>
+      <div class="stack" style="gap:0"><h1>Fridge Tab</h1><span class="sub">${esc(sub)}</span></div></div>
+    <button class="iconbtn" data-act="mode-cycle" aria-label="Light or dark: ${window.__ft.mode}">${ic(modeIcon)}</button>
+    ${m ? `<button class="me-badge ${pclass(m)}" style="--c:var(--${m})" data-act="tab" data-v="settings" aria-label="You are ${esc(pname(m))}">${esc(initial(m))}</button>` : ""}`;
+}
+function renderTabs() {
+  const n = D ? D.pending.filter((r) => r.to === me()).length : 0;
+  const t = (k, l, icon) => `<button type="button" class="t" data-act="tab" data-v="${k}" ${S.tab === k ? 'aria-current="page"' : ""}>${ic(icon)}<span>${l}</span>${k === "requests" && n ? `<span class="badge">${n}</span>` : ""}</button>`;
+  $("#tabs").innerHTML = t("home", "Home", "house") + t("history", "History", "receipt") +
+    `<div><button type="button" class="fab" data-act="${S.imagesOk ? "pick" : "tab"}" data-v="add" aria-label="Scan receipts">${ic(S.imagesOk ? "scan-line" : "plus")}</button></div>` +
+    t("requests", "Requests", "inbox") + t("settings", "Settings", "settings");
+}
+
+function banners() {
+  let h = "";
+  if (S.mode === "demo") h += `<div class="note info">${ic("sparkles")}<span>These are example bills. Open this page in Claude while signed in to use the real shared tab.</span></div>`;
+  if (S.readOnly) h += `<div class="note">${ic("eye")}<span>You can view this tab, but changes need edit access from the owner.</span></div>`;
+  if (S.mode === "live" && S.loaded.settings && !S.hasSettings && S.tab !== "settings") h += `<div class="note info">${ic("users")}<span>Add your three names first so bills show the right people.</span><button class="btn" data-act="tab" data-v="settings">Set names</button></div>`;
+  if (S.mode !== "loading" && S.loaded.settings && !me() && S.tab !== "settings") {
+    if (S.myUid) h += `<div class="card"><div class="stack"><h2>Which one is you?</h2><p class="muted small">This links your account to a name. Only you can then record money you've received.</p></div><div class="row">${S.people.map((p) => chip(p.id, { act: "claim", attrs: `data-v="${p.id}"`, label: p.name + (p.uid ? " · taken" : "") })).join("")}</div></div>`;
+    else if (S.mode === "live") h += `<div class="note">${ic("user-x")}<span>Sign in to Claude to link yourself to a name. You can still add bills.</span></div>`;
+  }
+  return h;
+}
+
+function homeView() {
+  if (S.mode === "loading" || (S.mode === "live" && !S.loaded.bills)) return `<div class="card empty"><p class="big">Opening the tab…</p></div>`;
+  const m = me();
+  let h = "";
+  if (m) {
+    const v = r2(D.net[m]);
+    const label = v > 0 ? "Roommates owe you" : v < 0 ? "You owe" : "You're all square";
+    const myPend = D.pending.filter((r) => r.from === m).reduce((s, r) => s + num(r.amount), 0);
+    h += `<div class="card hero"><span class="label">${label}</span><div class="big">${fmt(Math.abs(v))}</div><span class="meta">${S.bills.length} bill${S.bills.length === 1 ? "" : "s"} tracked${myPend ? ` · ${fmt(myPend)} sent, waiting for approval` : ""}</span></div>`;
+  } else if (S.bills.length) {
+    const total = S.bills.reduce((s, b) => s + billTotal(b), 0);
+    h += `<div class="card hero"><span class="label">Food tracked so far</span><div class="big">${fmt(total)}</div><span class="meta">${S.bills.length} bills</span></div>`;
+  }
+  const incoming = D.pending.filter((r) => r.to === m);
+  if (incoming.length) {
+    h += `<div class="section"><div class="sec-head"><h2>Payments to check</h2><span class="pill wait">${ic("clock")}${incoming.length} waiting</span></div><div class="card">${incoming.map(reqCard).join("")}</div></div>`;
+  }
+  h += `<div class="section"><div class="sec-head"><h2>Who owes whom</h2></div><div class="card">`;
+  if (!S.bills.length) {
+    h += `<div class="empty stack">${ic("shopping-basket")}<p class="big">No bills yet</p><p class="muted">Scan your 7-Eleven receipts and tick who ate what.</p><button class="btn primary" data-act="${S.imagesOk ? "pick" : "tab"}" data-v="add">${ic("scan-line")}Scan receipts</button></div>`;
+  } else if (!D.debts.length) {
+    h += `<div class="empty stack">${ic("party-popper")}<p class="big">Everyone is square</p><p class="muted">Nobody owes anything right now.</p></div>`;
+  } else {
+    D.debts.forEach((t) => {
+      const key = t.from + ">" + t.to;
+      const pend = D.pending.filter((r) => r.from === t.from && r.to === t.to).reduce((s, r) => s + num(r.amount), 0);
+      h += `<div class="debt"><div class="stack" style="gap:6px"><div class="row">${chip(t.from)}<span class="verb">owes</span>${chip(t.to)}</div>${pend ? `<span class="pill wait">${ic("clock")}${fmt(pend)} waiting for ${esc(pname(t.to))}</span>` : ""}</div><div class="amt">${fmt(t.amount)}</div><div class="acts">`;
+      if (m && m === t.to) {
+        h += `<button class="btn primary" data-act="record-open" data-from="${t.from}" data-to="${t.to}" data-amt="${t.amount}">${ic("hand-coins")}Got paid</button><button class="btn" data-act="copy" data-from="${t.from}" data-to="${t.to}" data-amt="${t.amount}">${ic("copy")}Remind</button>`;
+      } else if (m && m === t.from) {
+        h += `<button class="btn primary" data-act="request-open" data-to="${t.to}" data-amt="${r2(t.amount - pend)}">${ic("send")}Pay back</button>`;
+      }
+      h += `</div>`;
+      if (S.msg && S.msg.key === key) h += `<div class="msgbox">${esc(S.msg.text)}</div>`;
+      h += `</div>`;
+    });
+  }
+  h += `</div></div>`;
+  if (S.bills.length) {
+    h += `<div class="section"><div class="sec-head"><h2>Everyone</h2></div><div class="card">`;
+    S.people.forEach((p) => {
+      const v = r2(D.net[p.id]);
+      h += `<div class="pplrow"><div>${chip(p.id)}</div><div class="num ${v > 0 ? "pos" : v < 0 ? "neg" : ""}">${v > 0 ? "+" : ""}${fmt(v)}</div><div class="muted small">Bought ${fmt(D.paid[p.id])} · ate ${fmt(D.ate[p.id])}</div><div class="muted small" style="text-align:right">${v > 0 ? "is owed" : v < 0 ? "owes" : "square"}</div></div>`;
+    });
+    h += `</div></div>`;
+  }
+  return h;
+}
+
+function reqCard(r) {
+  const m = me();
+  const thumb = r.img ? `<button class="thumb" data-act="img-open" data-v="${r.id}" aria-label="View slip"><img src="${r.img}" alt="Payment slip"></button>` : `<div class="thumb">${ic("banknote")}</div>`;
+  const status = r.status === "accepted" ? `<span class="pill ok">${ic("circle-check")}Accepted${r.decision && num(r.decision.amount) !== num(r.amount) ? " " + fmt(r.decision.amount) : ""}</span>`
+    : r.status === "declined" ? `<span class="pill bad">${ic("circle-x")}Declined</span>` : `<span class="pill wait">${ic("clock")}Waiting</span>`;
+  let acts = "";
+  if (r.status === "pending" && r.to === m) acts = `<button class="btn primary" data-act="review-open" data-v="${r.id}">${ic("check")}Review</button>`;
+  else if (r.status === "pending" && r.from === m) acts = `<button class="btn" data-act="req-cancel" data-v="${r.id}">Cancel request</button>`;
+  else if (r.status !== "pending" && r.from === m) acts = `<button class="btn ghost" data-act="req-dismiss" data-v="${r.id}">Clear</button>`;
+  return `<div class="req">${thumb}<div class="stack" style="gap:4px"><div class="row">${chip(r.from)}<span class="verb">→</span>${chip(r.to)}</div><div class="row"><b class="num" style="font-size:18px">${fmt(r.amount)}</b>${status}</div><span class="muted tiny">${ago(r.createdAt || Date.now())}${r.note ? " · " + esc(r.note) : ""}</span></div>${acts ? `<div class="acts">${acts}</div>` : ""}</div>`;
+}
+
+function requestsView() {
+  const m = me();
+  if (!m) return `<h2>Requests</h2><div class="card empty stack">${ic("inbox")}<p class="big">Link yourself first</p><p class="muted">Choose which roommate you are in Settings to send or approve payments.</p><button class="btn" data-act="tab" data-v="settings">Open Settings</button></div>`;
+  const inbox = D.requests.filter((r) => r.to === m).sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || b.createdAt - a.createdAt);
+  const outbox = D.requests.filter((r) => r.from === m).sort((a, b) => b.createdAt - a.createdAt);
+  let h = `<div class="section"><div class="sec-head"><h2>Sent to you</h2><span class="muted small">You approve these</span></div><div class="card">`;
+  h += inbox.length ? inbox.map(reqCard).join("") : `<p class="muted small">When a roommate pays you back, their slip shows up here for you to accept.</p>`;
+  h += `</div></div><div class="section"><div class="sec-head"><h2>You sent</h2></div><div class="card">`;
+  h += outbox.length ? outbox.map(reqCard).join("") : `<p class="muted small">Tap “Pay back” on Home to send a payment with a slip photo.</p>`;
+  return h + `</div></div>`;
+}
+
+function addView() {
+  const d = curDraft();
+  if (!S.drafts.length) {
+    return `<div class="section"><h2>Add bills</h2>
+      ${S.imagesOk ? `<button class="scan-drop" data-act="pick" id="drop">${ic("scan-line")}<span class="big">Scan receipts</span><span class="muted">Pick one photo or many at once. Each receipt becomes its own bill, and the amounts add up on everyone's tab.</span><span class="btn primary">${ic("images")}Choose photos</span></button>`
+        : `<div class="note info">${ic("info")}<span>${S.mode === "loading" ? "Checking whether receipt scanning is available…" : "Receipt scanning isn't available in this view. You can type the items in."}</span></div>`}
+      <button class="btn block" data-act="draft-manual">${ic("pencil")}Type items in instead</button></div>`;
+  }
+  let h = `<div class="section"><div class="sec-head"><h2>${S.drafts.length > 1 ? `${S.drafts.length} bills to save` : d?.editing ? "Edit bill" : "New bill"}</h2></div><div class="stackbar" role="tablist">`;
+  S.drafts.forEach((x, i) => {
+    const st = draftState(x), pv = previews.get(x.id);
+    h += `<button class="dpill ${x.id === S.cur ? "on" : ""}" role="tab" aria-selected="${x.id === S.cur}" data-act="draft-select" data-v="${x.id}"><span class="tn">${pv ? `<img src="${pv}" alt="">` : i + 1}</span><span><b>${esc(x.store || "Bill")} ${realItems(x).length ? fmt(billTotal({ items: realItems(x) })) : ""}</b><span class="st ${st.c}">${st.t}</span></span></button>`;
+  });
+  if (S.imagesOk) h += `<button class="dpill add" data-act="pick">${ic("plus")}More</button>`;
+  h += `<button class="dpill add" data-act="draft-manual">${ic("pencil")}Blank</button></div></div>`;
+  if (!d) return h;
+
+  if (d.status === "reading" || d.status === "queued") {
+    const pv = previews.get(d.id);
+    h += `<div class="card"><div class="scanning">${pv ? `<img src="${pv}" alt="Receipt photo">` : ""}<div class="stack grow"><b>${d.status === "queued" ? "Waiting its turn…" : "Reading receipt…"}</b><span class="muted small">Usually 10 to 40 seconds. You can tick other bills meanwhile.</span><div class="row"><div class="bar"></div><button class="btn ghost" data-act="scan-stop" data-v="${d.id}">Stop</button></div></div></div></div>`;
+    return h;
+  }
+  if (d.err) h += `<div class="note err">${ic("triangle-alert")}<span>${esc(d.err)}</span>${scanFiles.has(d.id) && S.imagesOk ? `<button class="btn" data-act="rescan" data-v="${d.id}">${ic("rotate-cw")}Rescan</button>` : ""}</div>`;
+
+  const items = d.items;
+  h += `<div class="slip"><span class="vs-tab only-vscode">bill-${esc(d.date)}.json</span><div class="slip-head"><span class="slip-title">— RECEIPT —</span>
+    <div class="row" style="flex-wrap:nowrap"><label class="field"><span>Shop</span><input id="d-store" type="text" value="${esc(d.store)}"></label><label class="field"><span>Date</span><input id="d-date" type="date" value="${esc(d.date)}"></label></div>
+    <div class="stack" style="gap:6px"><span>PAID BY</span><div class="row">${S.people.map((p) => chip(p.id, { on: d.payer === p.id, act: "payer", attrs: `data-v="${p.id}"` })).join("")}</div></div></div>`;
+  if (items.length > 1) h += `<div class="bulk"><span class="eyebrow">Tick on every item</span><div class="row">${S.people.map((p) => chip(p.id, { on: items.every((it) => it.eaters.includes(p.id)), act: "bulk", attrs: `data-v="${p.id}"` })).join("")}<button class="btn ghost" data-act="bulk-clear">Clear</button></div></div>`;
+  h += `<div class="items">`;
+  items.forEach((it) => {
+    const n = it.eaters.length;
+    h += `<div class="item ${num(it.price) < 0 ? "neg" : ""}"><div class="item-top">
+      <div class="stack" style="gap:0"><input id="n-${it.id}" type="text" value="${esc(it.name)}" placeholder="Item name" aria-label="Item name" data-item="${it.id}" data-f="name">${it.en && it.en !== it.name ? `<span class="en">${esc(it.en)}</span>` : ""}</div>
+      <div class="price"><input id="p-${it.id}" type="text" inputmode="decimal" value="${esc(it.price)}" placeholder="0" aria-label="Price" data-item="${it.id}" data-f="price"></div>
+      <button class="x-btn" data-act="item-del" data-v="${it.id}" aria-label="Remove item">${ic("x")}</button></div>
+      <div class="eaters">${S.people.map((p) => chip(p.id, { on: it.eaters.includes(p.id), act: "tick", attrs: `data-item="${it.id}" data-v="${p.id}"` })).join("")}
+      <button class="btn ghost" style="min-height:36px" data-act="tick-all" data-item="${it.id}">All</button>
+      <span class="split-hint" id="sh-${it.id}">${n ? (n > 1 ? fmt(num(it.price) / n) + " each" : "") : `<span class="need">Who ate this?</span>`}</span></div></div>`;
+  });
+  h += `</div><button class="btn block" data-act="item-add">${ic("plus")}Add item</button><div class="totals" id="d-totals">${totalsHTML()}</div></div>`;
+  const unassigned = realItems(d).filter((it) => !it.eaters.length).length;
+  if (unassigned) h += `<div class="note">${ic("hand")}<span>${unassigned} item${unassigned > 1 ? "s have" : " has"} nobody ticked.</span><button class="btn" data-act="unassigned-all">Split between all 3</button></div>`;
+  h += `<button class="btn ghost block danger" data-act="draft-discard">${ic("trash-2")}${d.editing ? "Cancel editing" : "Discard this bill"}</button>`;
+  return h;
+}
+function totalsHTML() {
+  const d = curDraft(); if (!d) return "";
+  const total = d.items.reduce((s, it) => s + num(it.price), 0);
+  const per = {}; S.people.forEach((p) => (per[p.id] = 0));
+  d.items.forEach((it) => { for (const [k, v] of Object.entries(itemShares(it))) per[k] = (per[k] || 0) + v; });
+  let h = S.people.map((p) => `<div class="row"><span class="who ${pclass(p.id)}">${esc(p.name)}${p.id === d.payer ? " (paid)" : ""}</span><span>${fmt(per[p.id])}</span></div>`).join("");
+  h += `<div class="row grand"><span>TOTAL · ${realItems(d).length} ITEMS</span><span>${fmt(total)}</span></div>`;
+  if (d.receiptTotal != null && Math.abs(r2(total) - r2(d.receiptTotal)) >= 0.01) h += `<div class="note small" style="font-family:var(--f-body)">${ic("triangle-alert")}<span>The receipt says ${fmt(d.receiptTotal)}, but these items add up to ${fmt(total)}. Check for a missed item or discount.</span></div>`;
+  return h;
+}
+function renderActionbar() {
+  const el = $("#actionbar");
+  if (S.tab !== "add" || !S.drafts.length) { el.innerHTML = ""; return; }
+  const d = curDraft(), ready = S.drafts.filter(isReady).length;
+  const one = d && isReady(d);
+  let h = `<div class="actionbar"><div class="in">`;
+  if (S.drafts.length > 1) h += `<button class="btn lg" data-act="save-one" ${one && !S.saving ? "" : "disabled"}>${ic("check")}Save this</button><button class="btn primary lg" data-act="save-all" ${ready && !S.saving ? "" : "disabled"}>${ic("check-check")}Save ${ready} ready</button>`;
+  else h += `<button class="btn primary lg" data-act="save-one" ${d && d.status !== "reading" && d.status !== "queued" && !S.saving ? "" : "disabled"}>${ic("check")}${d?.editing ? "Save changes" : "Save bill"}</button>`;
+  el.innerHTML = h + `</div></div>`;
+}
+
+function historyView() {
+  if (S.mode === "live" && !S.loaded.bills) return `<div class="card empty"><p class="big">Loading history…</p></div>`;
+  const m = me();
+  const rows = [
+    ...S.bills.map((b) => ({ kind: "bill", date: b.date, at: b.createdAt || 0, b })),
+    ...D.payments.map((p) => ({ kind: "pay", date: p.date, at: p.createdAt || 0, p })),
+  ].sort((a, b) => (b.date || "").localeCompare(a.date || "") || b.at - a.at);
+  if (!rows.length) return `<h2>History</h2><div class="card empty stack">${ic("receipt")}<p class="big">Nothing here yet</p><p class="muted">Saved bills and payments show up here, newest first.</p></div>`;
+  let h = `<div class="sec-head"><h2>History</h2><span class="muted small">${S.bills.length} bills · ${D.accepted.length} payments</span></div><div class="hist">`;
+  for (const r of rows) {
+    const dp = dParts(r.date);
+    const tile = `<div class="date-tile"><b>${dp.d}</b><span>${MONTHS[(dp.m || 1) - 1]}</span></div>`;
+    if (r.kind === "pay") {
+      const p = r.p, mine = m && p.to === m;
+      const req = p.requestId ? D.requests.find((x) => x.id === p.requestId) : null;
+      h += `<div class="card bill"><div class="pay-row ${p.status === "declined" ? "declined" : ""}">${tile}<div class="stack" style="gap:3px"><div class="row" style="gap:6px">${chip(p.from)}<span class="verb">${p.status === "declined" ? "slip declined by" : "paid"}</span>${chip(p.to)}</div>${p.note ? `<span class="muted tiny">${esc(p.note)}</span>` : ""}</div><div class="row" style="gap:4px;flex-wrap:nowrap">${req?.img ? `<button class="btn ghost" data-act="img-open" data-v="${req.id}" aria-label="View slip">${ic("image")}</button>` : ""}<b class="num">${p.status === "declined" ? "—" : fmt(p.amount)}</b></div></div>`;
+      if (mine) h += `<div class="bill-body" style="padding-top:0"><div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="pay-edit" data-v="${p.id}">${ic("pencil")}Edit amount</button></div></div>`;
+      h += `</div>`;
+      continue;
+    }
+    const b = r.b, open = S.openBill === b.id, shares = billShares(b);
+    h += `<div class="card bill"><button class="bill-sum" data-act="bill-toggle" data-v="${b.id}" aria-expanded="${open}">${tile}
+      <div class="stack" style="gap:2px"><b>${esc(b.store || "Shop")}</b><span class="muted small">${(b.items || []).length} items · paid by <span class="who ${pclass(b.payer)}">${esc(pname(b.payer))}</span></span></div>
+      <span class="num" style="font-weight:600">${fmt(billTotal(b))}</span></button>`;
+    if (open) {
+      h += `<div class="bill-body"><div class="row">${S.people.filter((p) => shares[p.id]).map((p) => chip(p.id, { label: `${p.name} ${fmt(shares[p.id])}` })).join("")}</div><div class="bill-items">`;
+      for (const it of b.items || []) h += `<div class="r"><span>${esc(it.name)} <small>· ${(it.eaters || []).map(pname).map(esc).join(", ")}</small></span><span class="num">${fmt(it.price)}</span></div>`;
+      h += `</div><div class="row"><button class="btn" data-act="bill-edit" data-v="${b.id}">${ic("pencil")}Edit</button><button class="btn danger" data-act="bill-del" data-v="${b.id}">${ic("trash-2")}Delete</button></div></div>`;
+    }
+    h += `</div>`;
+  }
+  return h + `</div>`;
+}
+
+const SKINS = [
+  { id: "pink", name: "Sakura pink", sw: ["#FFF4F7", "#E895B2", "#281820", "#E895B2"] },
+  { id: "vscode", name: "VS Code", sw: ["#FFFFFF", "#005FB8", "#1E1E1E", "#007ACC"] },
+  { id: "dbz", name: "Dragon Ball", sw: ["#EEF4FF", "#F57C00", "#0A0F24", "#FFB020"] },
+];
+function settingsView() {
+  if (!S.namesDraft) S.namesDraft = clone(S.people);
+  const m = me(), mode = window.__ft.mode;
+  let h = `<div class="section"><div class="sec-head"><h2>Theme</h2><span class="muted small">Saved on this device</span></div><div class="card"><div class="skins">`;
+  SKINS.forEach((s) => {
+    h += `<button class="skin ${window.__ft.skin === s.id ? "on" : ""}" data-act="skin" data-v="${s.id}" aria-pressed="${window.__ft.skin === s.id}"><span class="pv"><i style="background:linear-gradient(${s.sw[0]} 55%, ${s.sw[1]} 55%)"></i><i style="background:linear-gradient(${s.sw[2]} 55%, ${s.sw[3]} 55%)"></i></span><span>${s.name}</span></button>`;
+  });
+  h += `</div><div class="seg" role="group" aria-label="Light or dark">${[["auto", "sun-moon", "Auto"], ["light", "sun", "Light"], ["dark", "moon", "Dark"]].map(([k, i, l]) => `<button data-act="mode" data-v="${k}" aria-pressed="${mode === k}">${ic(i)}${l}</button>`).join("")}</div></div></div>`;
+
+  h += `<div class="section"><div class="sec-head"><h2>Who are you?</h2></div><div class="card">`;
+  if (S.myUid || S.mode === "demo") {
+    h += `<p class="muted small">Linking your account to a name means only you can record money paid back to you.</p><div class="row">${S.people.map((p) => chip(p.id, { on: m === p.id, act: "claim", attrs: `data-v="${p.id}"`, label: p.name + (p.uid && p.uid !== S.myUid ? " · taken" : "") })).join("")}</div>`;
+  } else h += `<p class="muted small">Sign in to Claude to link yourself to a name.</p>`;
+  h += `</div></div>`;
+
+  h += `<div class="section"><div class="sec-head"><h2>Roommates</h2><span class="muted small">Shared with everyone</span></div><div class="card">`;
+  S.namesDraft.forEach((p, i) => {
+    h += `<div class="person-edit"><span class="chip static ${pclass(p.id)}"><span class="dot">${i + 1}</span></span><div class="fields">
+      <label class="field"><span>Name</span><input id="nm-${p.id}" type="text" maxlength="24" value="${esc(p.name)}" data-person="${p.id}" data-f="name"></label>
+      <label class="field"><span>PromptPay</span><input id="pp-${p.id}" type="tel" maxlength="20" value="${esc(p.promptpay || "")}" data-person="${p.id}" data-f="promptpay" placeholder="Optional"></label></div></div>`;
+  });
+  h += `<button class="btn primary" data-act="names-save">${ic("save")}Save names</button></div></div>`;
+  return h;
+}
+
+/* ================= sheets ================= */
+function quickAmounts(full) {
+  const set = [full, r2(full / 2), 20, 50, 100].filter((v, i, a) => v > 0 && (i < 2 || v < full) && a.indexOf(v) === i);
+  return `<div class="quick">${set.map((v, i) => `<button class="btn" data-act="quick-amt" data-v="${v}">${i === 0 ? "All " : i === 1 ? "Half " : ""}${fmt(v)}</button>`).join("")}</div>`;
+}
+function renderSheet() {
+  const el = $("#sheet"), sh = S.sheet;
+  if (!sh) { el.innerHTML = ""; return; }
+  let body = "";
+  const head = (title) => `<div class="handle"></div><div class="sheet-head"><h2>${title}</h2><button class="iconbtn" data-act="sheet-close" aria-label="Close">${ic("x")}</button></div>`;
+  if (sh.kind === "record") {
+    const debt = D.debts.find((d) => d.from === sh.from && d.to === sh.to);
+    const owed = r2((debt?.amount || 0) + (sh.editId ? num(D.payments.find((p) => p.id === sh.editId)?.amount) : 0));
+    body = head(sh.editId ? "Edit payment" : `Got paid by ${esc(pname(sh.from))}`) +
+      `<p class="muted">${esc(pname(sh.from))} ${sh.editId ? "owed" : "owes"} you <b class="num">${fmt(owed)}</b>. Enter what you actually received; the rest stays on the tab.</p>
+      <label class="field amount-in"><span>Amount received (฿)</span><input id="sh-amt" type="text" inputmode="decimal" value="${esc(sh.amount)}" autocomplete="off"></label>
+      ${quickAmounts(owed)}
+      <label class="field"><span>Note (optional)</span><input id="sh-note" type="text" maxlength="80" value="${esc(sh.note || "")}" placeholder="Cash, transfer…"></label>
+      <p class="muted small" id="sh-left">${leftText(owed, sh.amount)}</p>
+      <button class="btn primary lg" data-act="record-save">${ic("check")}${sh.editId ? "Save changes" : "Record payment"}</button>
+      ${sh.editId ? (sh.confirmDel ? `<div class="note err"><span>Delete this payment? The full debt comes back.</span><button class="btn danger" data-act="record-del-yes">Delete</button></div>` : `<button class="btn ghost danger" data-act="record-del">${ic("trash-2")}Delete payment</button>`) : ""}`;
+  } else if (sh.kind === "request") {
+    body = head(`Pay back ${esc(pname(sh.to))}`) +
+      `<p class="muted">You owe <b class="num">${fmt(sh.owed)}</b>. Send what you paid with a slip photo, and ${esc(pname(sh.to))} accepts it.</p>
+      <label class="field amount-in"><span>Amount you paid (฿)</span><input id="sh-amt" type="text" inputmode="decimal" value="${esc(sh.amount)}" autocomplete="off"></label>
+      ${quickAmounts(sh.owed)}
+      ${person(sh.to).promptpay ? `<div class="note info">${ic("smartphone")}<span>PromptPay for ${esc(pname(sh.to))}: <b class="mono">${esc(person(sh.to).promptpay)}</b></span><button class="btn" data-act="copy-pp" data-v="${esc(person(sh.to).promptpay)}">${ic("copy")}Copy</button></div>` : ""}
+      ${sh.img ? `<img class="slip-img" src="${sh.img}" alt="Your slip"><button class="btn ghost" data-act="slip-clear">${ic("x")}Remove photo</button>` : `<button class="btn block" data-act="slip-pick" ${sh.busy ? "disabled" : ""}>${ic("camera")}${sh.busy ? "Preparing photo…" : "Attach slip photo"}</button>`}
+      <label class="field"><span>Note (optional)</span><input id="sh-note" type="text" maxlength="80" value="${esc(sh.note || "")}" placeholder="Paid by transfer"></label>
+      <button class="btn primary lg" data-act="request-send" ${sh.busy ? "disabled" : ""}>${ic("send")}Send to ${esc(pname(sh.to))}</button>`;
+  } else if (sh.kind === "review") {
+    const r = D.requests.find((x) => x.id === sh.reqId);
+    if (!r) { S.sheet = null; el.innerHTML = ""; return; }
+    const debt = D.debts.find((d) => d.from === r.from && d.to === r.to);
+    body = head(`${esc(pname(r.from))} paid you`) +
+      (r.img ? `<img class="slip-img" src="${r.img}" alt="Payment slip">` : `<div class="note">${ic("image-off")}<span>No slip attached.</span></div>`) +
+      `<p class="muted">They owe you <b class="num">${fmt(debt?.amount || 0)}</b> in total.${r.note ? ` Note: “${esc(r.note)}”` : ""} Change the amount if it doesn't match the slip.</p>
+      <label class="field amount-in"><span>Amount received (฿)</span><input id="sh-amt" type="text" inputmode="decimal" value="${esc(sh.amount)}"></label>
+      <div class="row"><button class="btn danger lg grow" data-act="review-decline">${ic("x")}Decline</button><button class="btn primary lg grow" data-act="review-accept">${ic("check")}Accept</button></div>`;
+  } else if (sh.kind === "image") {
+    const r = D.requests.find((x) => x.id === sh.reqId);
+    body = head("Payment slip") + (r?.img ? `<img class="slip-img" style="max-height:75dvh" src="${r.img}" alt="Payment slip">` : `<p class="muted">This slip is no longer available.</p>`);
+  } else if (sh.kind === "confirm") {
+    body = head(esc(sh.title)) + `<p class="muted">${esc(sh.text)}</p><div class="row"><button class="btn lg grow" data-act="sheet-close">Keep</button><button class="btn danger lg grow" data-act="confirm-yes">${esc(sh.ok)}</button></div>`;
+  }
+  el.innerHTML = `<div class="backdrop" data-act="backdrop"><div class="sheet" role="dialog" aria-modal="true">${body}</div></div>`;
+}
+function leftText(owed, amt) {
+  const left = r2(owed - num(amt));
+  return left > 0 ? `${fmt(left)} will still be owed.` : left < 0 ? `That's ${fmt(-left)} more than owed; the difference flips to a credit.` : "This clears it completely.";
+}
+
+/* ================= render ================= */
+function render() {
+  D = derive();
+  const a = document.activeElement, fid = a && a.id && !["scan-file", "slip-file"].includes(a.id) ? a.id : null;
+  let sel = null; try { if (fid && a.selectionStart != null) sel = [a.selectionStart, a.selectionEnd]; } catch {}
+  const view = { home: homeView, add: addView, history: historyView, requests: requestsView, settings: settingsView }[S.tab] || homeView;
+  $("#app").innerHTML = banners() + view();
+  renderAppbar(); renderTabs(); renderActionbar(); renderSheet();
+  try { window.lucide?.createIcons(); } catch {}
+  if (fid) { const el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); if (sel) try { el.setSelectionRange(sel[0], sel[1]); } catch {} } }
+}
+let toastTimer = null;
+function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (el.hidden = true), 3400); }
+function goTab(v) { S.tab = v; ls.set("ft.tab", v); S.msg = null; if (v === "settings") S.namesDraft = null; window.scrollTo(0, 0); }
+
+/* ================= actions ================= */
+async function saveDraft(d) {
+  const items = realItems(d);
+  const bill = { id: d.id, date: d.date || today(), store: (d.store || "").trim() || "Shop", payer: d.payer, receiptTotal: d.receiptTotal ?? null,
+    items: items.map((i) => ({ id: i.id, name: (i.name || "").trim() || i.en || "Item", en: i.en || "", price: r2(num(i.price)), eaters: i.eaters.slice() })),
+    createdAt: d.createdAt || Date.now(), updatedAt: Date.now() };
+  return write(() => store.saveBill(bill));
+}
+function dropDraft(id) {
+  const i = S.drafts.findIndex((d) => d.id === id);
+  if (i < 0) return;
+  scanCtls.get(id)?.abort();
+  S.drafts.splice(i, 1);
+  if (previews.get(id)) URL.revokeObjectURL(previews.get(id));
+  previews.delete(id); scanFiles.delete(id);
+  if (S.cur === id) S.cur = (S.drafts[i] || S.drafts[i - 1] || null)?.id || null;
+}
+function validate(d) {
+  const items = realItems(d);
+  if (!items.length) return "Add at least one item first.";
+  const n = items.filter((i) => !i.eaters.length).length;
+  if (n) return `Tick who ate ${n} more item${n > 1 ? "s" : ""} first.`;
+  return null;
+}
+
+async function handle(act, v, el) {
+  const d = curDraft();
+  const item = d && el?.dataset.item ? d.items.find((i) => i.id === el.dataset.item) : null;
+  switch (act) {
+    case "tab": goTab(v); break;
+    case "mode-cycle": { const order = ["auto", "light", "dark"]; window.__ft.mode = order[(order.indexOf(window.__ft.mode) + 1) % 3]; try { localStorage.setItem("ft.mode", window.__ft.mode); } catch {} window.__ftApply(); toast({ auto: "Following your device", light: "Light mode", dark: "Dark mode" }[window.__ft.mode]); break; }
+    case "mode": window.__ft.mode = v; try { localStorage.setItem("ft.mode", v); } catch {} window.__ftApply(); break;
+    case "skin": window.__ft.skin = v; try { localStorage.setItem("ft.skin", v); } catch {} window.__ftApply(); break;
+    case "claim": {
+      if (!S.myUid) { toast("Sign in to Claude to link yourself."); return; }
+      const target = person(v);
+      if (target.uid === S.myUid) return;
+      if (target.uid && S.mode !== "demo") { S.sheet = { kind: "confirm", title: `Take over ${target.name}?`, text: `${target.name} is already linked to another account. Only do this if that's really you on a new login.`, ok: "Yes, that's me", act: "claim-yes", v }; break; }
+      return handle("claim-yes", v);
+    }
+    case "claim-yes": {
+      const people = clone(S.people);
+      const old = people.find((p) => p.uid === S.myUid), target = people.find((p) => p.id === v);
+      if (S.mode === "demo" && old) { const t = target.uid; target.uid = S.myUid; old.uid = t; }
+      else { if (old) old.uid = null; target.uid = S.myUid; }
+      S.sheet = null;
+      await write(() => store.saveSettings(people), `You're ${target.name}`);
+      if (S.drafts.length) S.drafts.forEach((x) => { if (!realItems(x).length) x.payer = v; });
+      break;
+    }
+    case "pick": $("#scan-file").click(); return;
+    case "rescan": { const x = S.drafts.find((y) => y.id === v); if (x && scanFiles.has(v)) { x.status = "queued"; x.err = ""; pumpScans(); } break; }
+    case "scan-stop": scanCtls.get(v)?.abort(); return;
+    case "draft-manual": { const nd = newDraft(); nd.items.push(newItem()); S.drafts.push(nd); S.cur = nd.id; goTab("add"); break; }
+    case "draft-select": S.cur = v; break;
+    case "draft-discard": S.sheet = { kind: "confirm", title: d?.editing ? "Stop editing?" : "Discard this bill?", text: d?.editing ? "Your changes to this bill won't be saved." : "The items on this bill will be thrown away.", ok: d?.editing ? "Stop editing" : "Discard", act: "draft-discard-yes", v: d?.id }; break;
+    case "draft-discard-yes": dropDraft(v); S.sheet = null; break;
+    case "payer": d.payer = v; break;
+    case "tick": item.eaters = item.eaters.includes(v) ? item.eaters.filter((x) => x !== v) : item.eaters.concat([v]); break;
+    case "tick-all": item.eaters = item.eaters.length === S.people.length ? [] : S.people.map((p) => p.id); break;
+    case "bulk": { const all = d.items.every((it) => it.eaters.includes(v)); d.items.forEach((it) => { it.eaters = all ? it.eaters.filter((x) => x !== v) : [...new Set(it.eaters.concat([v]))]; }); break; }
+    case "bulk-clear": d.items.forEach((it) => (it.eaters = [])); break;
+    case "unassigned-all": d.items.forEach((it) => { if (!it.eaters.length) it.eaters = S.people.map((p) => p.id); }); break;
+    case "item-add": { const it = newItem(); d.items.push(it); persistDrafts(); render(); document.getElementById("n-" + it.id)?.focus(); return; }
+    case "item-del": d.items = d.items.filter((i) => i.id !== v); break;
+    case "save-one": {
+      const err = validate(d); if (err) { toast(err); return; }
+      S.saving = true; render();
+      const ok = await saveDraft(d); S.saving = false;
+      if (ok) { const wasEdit = d.editing; dropDraft(d.id); toast(wasEdit ? "Changes saved" : S.drafts.length ? `Bill saved. ${S.drafts.length} left.` : "Bill saved"); if (!S.drafts.length) goTab("home"); }
+      break;
+    }
+    case "save-all": {
+      const ready = S.drafts.filter(isReady); if (!ready.length) return;
+      S.saving = true; render();
+      let saved = 0;
+      for (const x of ready) { if (await saveDraft(x)) { dropDraft(x.id); saved++; } else break; }
+      S.saving = false;
+      toast(S.drafts.length ? `Saved ${saved}. ${S.drafts.length} still need${S.drafts.length === 1 ? "s" : ""} ticks.` : `Saved ${saved} bills`);
+      if (!S.drafts.length) goTab("home"); else S.cur = S.drafts[0].id;
+      break;
+    }
+    case "copy": {
+      const t = { from: el.dataset.from, to: el.dataset.to, amount: num(el.dataset.amt) };
+      const text = reminderText(t);
+      S.msg = { key: t.from + ">" + t.to, text };
+      try { await navigator.clipboard.writeText(text); toast("Reminder copied. Paste it in LINE."); } catch { toast("Select the message below to copy it."); }
+      break;
+    }
+    case "copy-pp": try { await navigator.clipboard.writeText(v); toast("PromptPay number copied"); } catch { toast("Select the number to copy it."); } return;
+    case "record-open": S.sheet = { kind: "record", from: el.dataset.from, to: el.dataset.to, amount: String(num(el.dataset.amt)), note: "" }; break;
+    case "pay-edit": { const p = D.payments.find((x) => x.id === v); if (!p || p.to !== me()) return; S.sheet = { kind: "record", from: p.from, to: p.to, amount: String(p.amount), note: p.note || "", editId: p.id }; break; }
+    case "quick-amt": S.sheet.amount = String(v); break;
+    case "record-save": {
+      const sh = S.sheet, amt = r2(num(sh.amount));
+      if (amt <= 0) { toast("Enter an amount above ฿0."); return; }
+      const prev = sh.editId ? D.payments.find((p) => p.id === sh.editId) : null;
+      const p = { ...(prev || {}), id: prev?.id || uid(), from: sh.from, to: me(), amount: amt, note: (sh.note || "").trim(), status: "accepted", requestId: prev?.requestId || null, date: prev?.date || today(), createdAt: prev?.createdAt || Date.now(), updatedAt: Date.now() };
+      S.sheet = null;
+      const before = D.debts.find((x) => x.from === p.from && x.to === p.to)?.amount || 0;
+      if (await write(() => store.savePay(p), prev ? "Payment updated" : `Recorded ${fmt(amt)} from ${pname(p.from)}`) && !prev && amt >= before - 0.009) celebrate();
+      return;
+    }
+    case "record-del": S.sheet.confirmDel = true; break;
+    case "record-del-yes": { const id = S.sheet.editId; S.sheet = null; await write(() => store.deletePay(id), "Payment deleted"); return; }
+    case "request-open": { const to = el.dataset.to; const debt = D.debts.find((x) => x.from === me() && x.to === to); const owed = debt?.amount || 0; S.sheet = { kind: "request", to, owed, amount: String(Math.max(0, num(el.dataset.amt)) || owed), note: "", img: null }; break; }
+    case "slip-pick": $("#slip-file").click(); return;
+    case "slip-clear": S.sheet.img = null; break;
+    case "request-send": {
+      const sh = S.sheet, amt = r2(num(sh.amount));
+      if (amt <= 0) { toast("Enter an amount above ฿0."); return; }
+      const r = { id: uid(), from: me(), to: sh.to, amount: amt, note: (sh.note || "").trim(), img: sh.img || null, createdAt: Date.now() };
+      S.sheet = null;
+      await write(() => store.saveReq(r), `Sent to ${pname(r.to)} for approval`);
+      return;
+    }
+    case "review-open": { const r = D.requests.find((x) => x.id === v); if (!r) return; S.sheet = { kind: "review", reqId: v, amount: String(r.amount) }; break; }
+    case "review-accept": case "review-decline": {
+      const r = D.requests.find((x) => x.id === S.sheet.reqId); if (!r) { S.sheet = null; break; }
+      const accept = act === "review-accept", amt = r2(num(S.sheet.amount));
+      if (accept && amt <= 0) { toast("Enter an amount above ฿0, or decline."); return; }
+      const p = { id: uid(), from: r.from, to: me(), amount: accept ? amt : 0, note: r.note || "", status: accept ? "accepted" : "declined", requestId: r.id, date: today(), createdAt: Date.now(), updatedAt: Date.now() };
+      S.sheet = null;
+      if (await write(() => store.savePay(p), accept ? `Accepted ${fmt(amt)} from ${pname(r.from)}` : "Declined") && accept) celebrate();
+      return;
+    }
+    case "req-cancel": S.sheet = { kind: "confirm", title: "Cancel this request?", text: "It will be removed before it's accepted.", ok: "Cancel request", act: "req-del-yes", v }; break;
+    case "req-dismiss": return handle("req-del-yes", v);
+    case "req-del-yes": S.sheet = null; await write(() => store.deleteReq(v)); return;
+    case "img-open": S.sheet = { kind: "image", reqId: v }; break;
+    case "bill-toggle": S.openBill = S.openBill === v ? null : v; break;
+    case "bill-edit": {
+      const b = S.bills.find((x) => x.id === v); if (!b) return;
+      const ex = S.drafts.find((x) => x.id === v);
+      if (!ex) S.drafts.push({ ...clone(b), items: clone(b.items).map((i) => ({ ...i, price: String(i.price) })), editing: true, status: "manual", err: "" });
+      S.cur = v; goTab("add"); break;
+    }
+    case "bill-del": S.sheet = { kind: "confirm", title: "Delete this bill?", text: "It's removed for everyone and the amounts come off the tab.", ok: "Delete bill", act: "bill-del-yes", v }; break;
+    case "bill-del-yes": S.sheet = null; await write(() => store.deleteBill(v), "Bill deleted"); return;
+    case "confirm-yes": { const sh = S.sheet; return handle(sh.act, sh.v, el); }
+    case "sheet-close": S.sheet = null; break;
+    case "backdrop": if (el === el.closest(".backdrop")) { S.sheet = null; break; } return;
+    case "names-save": {
+      const people = S.people.map((p, i) => { const n = S.namesDraft.find((x) => x.id === p.id) || p; return { ...p, name: (n.name || "").trim() || `Roommate ${i + 1}`, promptpay: (n.promptpay || "").trim() }; });
+      await write(() => store.saveSettings(people), "Names saved"); S.namesDraft = null; break;
+    }
+    default: return;
+  }
+  persistDrafts(); render();
+}
+
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("[data-act]"); if (!el) return;
+  if (el.dataset.act === "backdrop" && ev.target !== el) return;
+  handle(el.dataset.act, el.dataset.v, el);
+});
+document.addEventListener("input", (ev) => {
+  const el = ev.target, d = curDraft();
+  if (el.id === "d-store" && d) { d.store = el.value; persistDrafts(true); return; }
+  if (el.id === "d-date" && d) { d.date = el.value; persistDrafts(true); return; }
+  if (el.dataset.item && d) {
+    const it = d.items.find((i) => i.id === el.dataset.item); if (!it) return;
+    it[el.dataset.f] = el.value;
+    if (el.dataset.f === "price") {
+      const t = $("#d-totals"); if (t) { t.innerHTML = totalsHTML(); try { window.lucide?.createIcons(); } catch {} }
+      const sh = document.getElementById("sh-" + it.id); if (sh && it.eaters.length > 1) sh.textContent = fmt(num(it.price) / it.eaters.length) + " each";
+      el.closest(".item")?.classList.toggle("neg", num(it.price) < 0);
+    }
+    persistDrafts(true); return;
+  }
+  if (el.dataset.person && S.namesDraft) { const p = S.namesDraft.find((x) => x.id === el.dataset.person); if (p) p[el.dataset.f] = el.value; return; }
+  if (el.id === "sh-amt" && S.sheet) {
+    S.sheet.amount = el.value;
+    const left = $("#sh-left");
+    if (left && S.sheet.kind === "record") { const debt = D.debts.find((x) => x.from === S.sheet.from && x.to === S.sheet.to); left.textContent = leftText(r2((debt?.amount || 0) + (S.sheet.editId ? num(D.payments.find((p) => p.id === S.sheet.editId)?.amount) : 0)), el.value); }
+    return;
+  }
+  if (el.id === "sh-note" && S.sheet) S.sheet.note = el.value;
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape" && S.sheet) { S.sheet = null; render(); return; }
+  if (ev.key === "Enter" && ev.target.dataset?.f === "price" && curDraft()) { ev.preventDefault(); handle("item-add"); }
+});
+$("#scan-file").addEventListener("change", (ev) => { const fs = Array.from(ev.target.files || []); ev.target.value = ""; if (fs.length) enqueueScans(fs); });
+$("#slip-file").addEventListener("change", async (ev) => {
+  const f = ev.target.files?.[0]; ev.target.value = "";
+  if (!f || !S.sheet || S.sheet.kind !== "request") return;
+  S.sheet.busy = true; render();
+  try { const img = await compressImage(f); if (S.sheet?.kind === "request") S.sheet.img = img; }
+  catch { toast("That photo couldn't be used. Try a screenshot of the slip."); }
+  if (S.sheet) S.sheet.busy = false; render();
+});
+document.addEventListener("dragover", (ev) => { if (S.imagesOk && S.tab === "add") { ev.preventDefault(); $("#drop")?.classList.add("drag"); } });
+document.addEventListener("dragleave", () => $("#drop")?.classList.remove("drag"));
+document.addEventListener("drop", (ev) => { if (!(S.imagesOk && S.tab === "add")) return; ev.preventDefault(); enqueueScans(ev.dataTransfer?.files); });
+
+/* ================= example data ================= */
+function loadExample() {
+  S.myUid = "demo-you";
+  S.people = [{ id: "p1", name: "You", promptpay: "", uid: "demo-you" }, { id: "p2", name: "Roommate B", promptpay: "", uid: "demo-b" }, { id: "p3", name: "Roommate C", promptpay: "", uid: "demo-c" }];
+  S.hasSettings = true; S.loaded.settings = true; S.loaded.bills = true;
+  const t = Date.now();
+  S.bills = [
+    { id: "ex1", date: "2026-10-03", store: "7-Eleven", payer: "p1", createdAt: t - 7e8, items: [
+      { id: "a", name: "ข้าวกะเพราไก่", en: "Basil chicken rice", price: 45, eaters: ["p2"] },
+      { id: "b", name: "แซนด์วิชแฮมชีส", en: "Ham cheese sandwich", price: 32, eaters: ["p1"] },
+      { id: "c", name: "นมจืด 1L", en: "Plain milk 1L", price: 49, eaters: ["p1", "p2", "p3"] },
+      { id: "d", name: "ไส้กรอกจัมโบ้", en: "Jumbo sausage", price: 39, eaters: ["p3"] } ] },
+    { id: "ex2", date: "2026-10-07", store: "7-Eleven", payer: "p2", createdAt: t - 3e8, items: [
+      { id: "e", name: "มาม่าคัพ", en: "Cup noodles", price: 15, eaters: ["p1"] },
+      { id: "f", name: "ขนมปังสังขยา", en: "Custard bread", price: 22, eaters: ["p1", "p3"] } ] },
+    { id: "ex3", date: "2026-10-09", store: "7-Eleven", payer: "p1", createdAt: t - 1e8, items: [
+      { id: "h", name: "ข้าวผัดหมู", en: "Pork fried rice", price: 42, eaters: ["p3"] },
+      { id: "i", name: "น้ำดื่ม 6 ขวด", en: "Water 6-pack", price: 42, eaters: ["p1", "p2", "p3"] } ] },
+  ];
+  S.payByUid = { "demo-you": [{ id: "pay1", from: "p3", to: "p1", amount: 30, status: "accepted", requestId: null, note: "Cash", date: "2026-10-08", createdAt: t - 2e8 }] };
+  S.reqByUid = { "demo-b": [{ id: "rq1", from: "p2", to: "p1", amount: 40, note: "Sent by K PLUS", img: null, createdAt: t - 36e5 }] };
+}
+
+/* ================= boot ================= */
+const use = (n) => (window.claude?.use ? window.claude.use(n).catch(() => null) : Promise.resolve(null));
+const subs = new Map();
+function syncPersonSubs() {
+  const want = new Set(S.people.map((p) => p.uid).filter(Boolean));
+  for (const [u, unsub] of subs) if (!want.has(u)) { unsub(); subs.delete(u); delete S.payByUid[u]; delete S.reqByUid[u]; }
+  for (const u of want) {
+    if (subs.has(u)) continue;
+    try {
+      const a = db.collection(payCol(u)).onSnapshot((q) => { S.payByUid[u] = q.docs.map((x) => x.data()); render(); }, () => {});
+      const b = db.collection(reqCol(u)).onSnapshot((q) => { S.reqByUid[u] = q.docs.map((x) => x.data()); render(); }, () => {});
+      subs.set(u, () => { a(); b(); });
+    } catch {}
+  }
+}
+render();
+(async () => {
+  const [d, smp, usr] = await Promise.all([use("db"), use("sample"), use("user")]);
+  if (smp) { sample = smp; try { const lim = await smp.limits(); S.imagesOk = !!lim?.images; } catch { S.imagesOk = false; } }
+  if (!d) { S.mode = "demo"; loadExample(); render(); return; }
+  if (usr) {
+    try { S.myUid = (await usr.id()) || null; } catch {}
+    try { if ((await usr.can?.("data.write")) === false) S.readOnly = true; } catch {}
+  }
+  db = d; S.mode = "live"; render();
+  const onErr = (e) => { if (e?.code === "revoked") { S.readOnly = true; render(); } };
+  db.doc("house/settings").onSnapshot((s) => {
+    const p = s.exists ? s.data()?.people : null;
+    if (Array.isArray(p) && p.length) { S.people = clone(p).map((x) => ({ uid: null, promptpay: "", ...x })); S.hasSettings = true; } else S.hasSettings = false;
+    S.loaded.settings = true; syncPersonSubs(); render();
+  }, onErr);
+  db.collection("bills").onSnapshot((q) => { S.bills = q.docs.map((x) => x.data()); S.loaded.bills = true; render(); }, onErr);
+})();
+})();
+</script>
