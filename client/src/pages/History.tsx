@@ -111,6 +111,7 @@ export function History() {
                       </li>
                     ))}
                   </ul>
+                  {b.createdBy === book.me.id ? (
                   <div className="flex gap-2">
                     <button className="btn" onClick={() => (editBill(b), navigate("/add"))}><Pencil />Edit</button>
                     <button
@@ -125,6 +126,9 @@ export function History() {
                       <Trash2 />Delete
                     </button>
                   </div>
+                  ) : (
+                    <p className="text-xs text-muted">Only {book.member(b.createdBy).name} can edit or delete this bill.</p>
+                  )}
                 </div>
               )}
             </li>

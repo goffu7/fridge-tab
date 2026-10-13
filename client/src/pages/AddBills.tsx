@@ -1,10 +1,10 @@
-import { Check, CheckCheck, Hand, Images, Pencil, Plus, RotateCw, ScanLine, Trash2, TriangleAlert, X } from "lucide-react";
+import { Camera, Check, CheckCheck, Hand, Images, Pencil, Plus, RotateCw, ScanLine, Trash2, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { itemShares } from "@shared/ledger";
 import type { Member } from "@shared/types";
-import { pickReceipts } from "@/components/AppShell";
+import { pickReceipts, takeReceiptPhoto } from "@/components/AppShell";
 import { PersonChip } from "@/components/ui";
 import { api } from "@/lib/api";
 import {
@@ -33,12 +33,15 @@ export function AddBills() {
       <section className="flex flex-col gap-3">
         <h2>Add bills</h2>
         {scanEnabled ? (
-          <button className="flex w-full flex-col items-center gap-2.5 rounded-card border-2 border-dashed border-accent bg-accent/5 px-4 py-7 text-center" onClick={pickReceipts}>
+          <div className="flex w-full flex-col items-center gap-2.5 rounded-card border-2 border-dashed border-accent bg-accent/5 px-4 py-7 text-center">
             <ScanLine className="size-9 text-accent-strong" />
             <span className="display text-2xl">Scan receipts</span>
-            <span className="text-muted">Pick one photo or many at once. Each receipt becomes its own bill, and the amounts add up on everyone's tab.</span>
-            <span className="btn btn-primary mt-1"><Images />Choose photos</span>
-          </button>
+            <span className="text-muted">Snap a receipt, or pick one photo or many at once. Each receipt becomes its own bill, and the amounts add up on everyone's tab.</span>
+            <div className="mt-1 flex w-full flex-wrap justify-center gap-2">
+              <button className="btn btn-primary" onClick={takeReceiptPhoto}><Camera />Take photo</button>
+              <button className="btn" onClick={pickReceipts}><Images />Choose photos</button>
+            </div>
+          </div>
         ) : (
           <p className="note note-info">Receipt scanning isn't set up on this server yet. You can type the items in.</p>
         )}
@@ -102,6 +105,7 @@ export function AddBills() {
               </button>
             );
           })}
+          {scanEnabled && <button className="dpill border-dashed !pl-3 text-muted" onClick={takeReceiptPhoto}><Camera className="size-4" />Camera</button>}
           {scanEnabled && <button className="dpill border-dashed !pl-3 text-muted" onClick={pickReceipts}><Plus className="size-4" />More</button>}
           <button className="dpill border-dashed !pl-3 text-muted" onClick={() => addBlank(book.me.id)}><Pencil className="size-4" />Blank</button>
         </div>

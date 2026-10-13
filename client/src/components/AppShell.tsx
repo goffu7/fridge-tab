@@ -9,8 +9,11 @@ import { setTheme, useTheme, type Mode } from "@/lib/theme";
 import { Avatar } from "./ui";
 
 const SCAN_INPUT = "scan-input";
+const CAMERA_INPUT = "camera-input";
 /** Opens the phone's photo picker for one or many receipts. */
 export const pickReceipts = () => document.getElementById(SCAN_INPUT)?.click();
+/** Opens the phone's back camera to snap one receipt. */
+export const takeReceiptPhoto = () => document.getElementById(CAMERA_INPUT)?.click();
 
 const MODE_ICON = { auto: SunMoon, light: Sun, dark: Moon };
 const NEXT_MODE: Record<Mode, Mode> = { auto: "light", light: "dark", dark: "auto" };
@@ -70,7 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Tab to="/" icon={<House />} label="Home" />
           <Tab to="/history" icon={<Receipt />} label="History" />
           <div>
-            <button className="fab" aria-label={scanEnabled ? "Scan receipts" : "Add a bill"} onClick={() => (scanEnabled ? pickReceipts() : navigate("/add"))}>
+            <button className="fab" aria-label={scanEnabled ? "Scan receipts" : "Add a bill"} onClick={() => navigate("/add")}>
               {scanEnabled ? <ScanLine /> : <Plus />}
             </button>
           </div>
@@ -80,6 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>
 
       <input id={SCAN_INPUT} type="file" accept="image/*" multiple hidden onChange={(e) => (onFiles(e.target.files), (e.target.value = ""))} />
+      <input id={CAMERA_INPUT} type="file" accept="image/*" capture="environment" hidden onChange={(e) => (onFiles(e.target.files), (e.target.value = ""))} />
       <Sheets />
     </>
   );

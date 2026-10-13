@@ -28,6 +28,13 @@ async function memberIds(houseId: string) {
   return new Set(r.rows.map((x) => String(x.id)));
 }
 
+/** Only the person who saved a bill can change or delete it. */
+async function myBill(id: string, m: { id: string; houseId: string }) {
+  const r = await db.execute({ sql: "SELECT created_by FROM bills WHERE id = ? AND house_id = ?", args: [id, m.houseId] });
+  if (!r.rows.length) throw new HttpError(404, "That bill no longer exists.");
+  if (String(r.rows[0].created_by) !== m.id) throw new HttpError(403, "Only the person who added this bill can change it.");
+}
+
 async function checkPeople(houseId: string, payerId: string, items: { eaters: string[] }[]) {
   const ids = await memberIds(houseId);
   if (!ids.has(payerId)) throw new HttpError(400, "The person who paid isn't in this house.");
@@ -62,8 +69,7 @@ bills.post("/", async (req, res) => {
 bills.put("/:id", async (req, res) => {
   const m = me(req);
   const b = parse(billInput, req.body);
-  const found = await db.execute({ sql: "SELECT 1 FROM bills WHERE id = ? AND house_id = ?", args: [req.params.id, m.houseId] });
-  if (!found.rows.length) throw new HttpError(404, "That bill no longer exists.");
+  await myBill(req.params.id, m);
   await checkPeople(m.houseId, b.payerId, b.items);
   await db.batch(
     [
@@ -78,6 +84,7 @@ bills.put("/:id", async (req, res) => {
 
 bills.delete("/:id", async (req, res) => {
   const m = me(req);
+  await myBill(req.params.id, m);
   await db.batch(
     [
       { sql: "DELETE FROM bill_items WHERE bill_id IN (SELECT id FROM bills WHERE id = ? AND house_id = ?)", args: [req.params.id, m.houseId] },
