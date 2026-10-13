@@ -1,4 +1,4 @@
-import type { BillInput, HouseState, InviteInfo, MeResponse, ScanResult } from "@shared/types";
+import type { BillInput, HouseState, LoginInfo, MeResponse, ScanResult } from "@shared/types";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -42,13 +42,11 @@ const form = (fields: Record<string, string | Blob | null | undefined>) => {
 export const api = {
   me: () => call<MeResponse>("GET", "/me"),
   state: () => call<HouseState>("GET", "/state"),
-  updateMe: (patch: { name?: string; promptpay?: string; pin?: string }) => call<void>("PATCH", "/me", patch),
+  updateMe: (patch: { name?: string; promptpay?: string }) => call<void>("PATCH", "/me", patch),
   logout: () => call<void>("POST", "/logout"),
 
-  createHouse: (b: { houseName: string; name: string; pin: string }) => call<{ inviteCode: string }>("POST", "/houses", b),
-  invite: (code: string) => call<InviteInfo>("GET", `/invite/${encodeURIComponent(code)}`),
-  join: (code: string, b: { name: string; pin: string }) => call<void>("POST", `/invite/${encodeURIComponent(code)}/join`, b),
-  login: (code: string, b: { memberId: string; pin: string }) => call<void>("POST", `/invite/${encodeURIComponent(code)}/login`, b),
+  friends: () => call<LoginInfo>("GET", "/friends"),
+  login: (memberId: string) => call<void>("POST", "/friends/login", { memberId }),
 
   createBill: (b: BillInput) => call<{ id: string }>("POST", "/bills", b),
   updateBill: (id: string, b: BillInput) => call<void>("PUT", `/bills/${id}`, b),

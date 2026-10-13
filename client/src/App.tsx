@@ -7,7 +7,7 @@ import { History } from "@/pages/History";
 import { Home } from "@/pages/Home";
 import { Requests } from "@/pages/Requests";
 import { Settings } from "@/pages/Settings";
-import { Join, Welcome } from "@/pages/Welcome";
+import { Welcome } from "@/pages/Welcome";
 
 export function App() {
   const me = useMe();
@@ -26,10 +26,7 @@ export function App() {
       );
     }
     return (
-      <Routes>
-        <Route path="/join/:code" element={<Join />} />
-        <Route path="*" element={<Welcome />} />
-      </Routes>
+      <Welcome />
     );
   }
 

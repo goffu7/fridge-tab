@@ -82,10 +82,10 @@ export interface MeResponse {
   scanEnabled: boolean;
 }
 
-export interface InviteInfo {
+/** What the login screen shows: the friends you can log in as. */
+export interface LoginInfo {
   house: { name: string };
   members: Pick<Member, "id" | "name" | "color">[];
-  full: boolean;
 }
 
 export interface BillInput {
@@ -104,3 +104,7 @@ export interface ScanResult {
 }
 
 export const MAX_MEMBERS = 6;
+
+/** The friends this app is for. Each gets a member with this lowercase id; renaming later keeps the id. */
+export const FRIENDS = ["Anant", "Aman", "Parin"];
+export const HOUSE_NAME = "Fridge Tab";

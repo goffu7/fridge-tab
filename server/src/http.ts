@@ -27,7 +27,6 @@ export function me(req: Request) {
   return req.member;
 }
 
-export const pin = z.string().regex(/^\d{4,6}$/, "PIN must be 4 to 6 digits");
 export const personName = z.string().trim().min(1, "Enter a name").max(24);
 export const satang = z.number().int().min(-10_000_000).max(10_000_000);
 export const positiveSatang = z.number().int().min(1, "Amount must be above ฿0").max(10_000_000);

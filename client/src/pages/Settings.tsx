@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Copy, KeyRound, LogOut, Moon, Save, Share2, Sun, SunMoon } from "lucide-react";
+import { LogOut, Moon, Save, Sun, SunMoon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { PersonChip } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAction, useBook } from "@/lib/queries";
@@ -14,37 +13,15 @@ export function Settings() {
   const qc = useQueryClient();
   const [name, setName] = useState(book?.me.name ?? "");
   const [promptpay, setPromptpay] = useState(book?.me.promptpay ?? "");
-  const [pin, setPin] = useState("");
   if (!book) return <p className="card text-center text-muted">Loading…</p>;
 
-  const inviteUrl = `${location.origin}/join/${book.house.inviteCode}`;
-  const shareInvite = async () => {
-    const text = `Join our food tab "${book.house.name}" on Fridge Tab:`;
-    if (navigator.share) {
-      try {
-        return await navigator.share({ title: "Fridge Tab", text, url: inviteUrl });
-      } catch {
-        /* cancelled */
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(inviteUrl);
-      toast.success("Invite link copied");
-    } catch {
-      toast("Select the link to copy it.");
-    }
-  };
   const saveProfile = async () => {
     if (await action.run(() => api.updateMe({ name: name.trim(), promptpay: promptpay.trim() }), "Saved")) qc.invalidateQueries({ queryKey: ["me"] });
-  };
-  const savePin = async () => {
-    if (!/^\d{4,6}$/.test(pin)) return toast.error("PIN must be 4 to 6 digits.");
-    if (await action.run(() => api.updateMe({ pin }), "PIN changed")) setPin("");
   };
   const logout = async () => {
     await api.logout().catch(() => {});
     qc.clear();
-    location.assign(`/join/${book.house.inviteCode}`);
+    location.assign("/");
   };
 
   const modes: [Mode, typeof Sun, string][] = [["auto", SunMoon, "Auto"], ["light", Sun, "Light"], ["dark", Moon, "Dark"]];
@@ -88,10 +65,6 @@ export function Settings() {
           </div>
           <p className="text-sm text-muted">Your PromptPay number is shown when roommates pay you back.</p>
           <button className="btn btn-primary" disabled={action.pending} onClick={saveProfile}><Save />Save</button>
-          <div className="flex items-end gap-2 border-t border-line pt-3">
-            <label className="field"><span>New PIN</span><input className="input" type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} /></label>
-            <button className="btn" onClick={savePin}><KeyRound />Change PIN</button>
-          </div>
         </div>
       </section>
 
@@ -99,11 +72,6 @@ export function Settings() {
         <div className="sec-title"><h2>{book.house.name}</h2><span className="text-sm text-muted">{book.members.length} people</span></div>
         <div className="card">
           <div className="flex flex-wrap gap-2">{book.members.map((m) => <PersonChip key={m.id} member={m} label={m.id === book.me.id ? `${m.name} (you)` : m.name} />)}</div>
-          <p className="text-sm text-muted">Send this link to roommates. They pick a name and a PIN to join.</p>
-          <p className="rounded-ctl bg-surface-2 px-3 py-2.5 font-mono text-sm break-all select-all">{inviteUrl}</p>
-          <div className="flex gap-2">
-            <button className="btn btn-primary flex-1" onClick={shareInvite}>{"share" in navigator ? <Share2 /> : <Copy />}Share invite</button>
-          </div>
         </div>
       </section>
 

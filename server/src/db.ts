@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { createClient, type Row } from "@libsql/client";
 import { env } from "./env";
-import type { Bill, BillItem, House, Member, Payment, PayRequest } from "../../shared/types";
+import { FRIENDS, HOUSE_NAME, type Bill, type BillItem, type House, type Member, type Payment, type PayRequest } from "../../shared/types";
 
 if (env.databaseUrl.startsWith("file:")) mkdirSync(dirname(env.databaseUrl.slice(5)), { recursive: true });
 
@@ -90,6 +90,23 @@ CREATE INDEX IF NOT EXISTS payments_house ON payments(house_id);
 
 export async function migrate() {
   await db.executeMultiple(SCHEMA);
+  await seedFriends();
+}
+
+/** One house holding the fixed friends. Safe to run on every start. */
+async function seedFriends() {
+  const now = Date.now();
+  let house = (await db.execute("SELECT id FROM houses ORDER BY created_at LIMIT 1")).rows[0]?.id;
+  if (!house) {
+    house = "house";
+    await db.execute({ sql: "INSERT INTO houses (id, name, invite_code, created_at) VALUES (?, ?, ?, ?)", args: [house, HOUSE_NAME, "friends", now] });
+  }
+  for (const [i, name] of FRIENDS.entries()) {
+    await db.execute({
+      sql: "INSERT OR IGNORE INTO members (id, house_id, name, promptpay, pin_hash, color, created_at) VALUES (?, ?, ?, '', '', ?, ?)",
+      args: [name.toLowerCase(), String(house), name, i, now + i],
+    });
+  }
 }
 
 /* Row -> API object mappers */
