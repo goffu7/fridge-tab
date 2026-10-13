@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeLedger, requestStatus } from "./ledger";
+import { computeLedger, pairBreakdown, requestStatus } from "./ledger";
 import type { Bill, Member, Payment } from "./types";
 
 const members: Member[] = ["a", "b", "c"].map((id, i) => ({ id, name: id.toUpperCase(), promptpay: "", color: i }));
@@ -66,5 +66,20 @@ describe("requestStatus", () => {
     const req = { id: "r1", fromId: "b", toId: "a", amount: 100, note: "", slipId: null, createdAt: 0 };
     expect(requestStatus(req, [])).toBe("pending");
     expect(requestStatus(req, [pay("b", "a", 100, { requestId: "r1" })])).toBe("accepted");
+  });
+});
+
+describe("pairBreakdown", () => {
+  it("lists the bills and payments behind a debt and sums to it", () => {
+    const state = {
+      members,
+      bills: [bill("a", [[4500, ["b"]], [6000, ["a", "b", "c"]], [900, ["c"]]]), bill("b", [[1000, ["a"]]]), bill("c", [[700, ["a"]]])],
+      payments: [pay("b", "a", 1500), pay("b", "a", 9999, { status: "declined" })],
+    };
+    const { entries, total } = pairBreakdown(state, "a", "b");
+    expect(entries.map((e) => e.amount).sort((x, y) => x - y)).toEqual([-1500, -1000, 6500]);
+    const debt = computeLedger(state).debts.find((d) => d.fromId === "b" && d.toId === "a")!;
+    expect(total).toBe(debt.amount);
+    expect(pairBreakdown(state, "b", "a").total).toBe(-debt.amount);
   });
 });

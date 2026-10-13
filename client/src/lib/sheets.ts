@@ -6,6 +6,8 @@ export type SheetState =
   | { kind: "payback"; toId: string }
   | { kind: "review"; requestId: string }
   | { kind: "slip"; slipId: string }
+  /** Where a balance comes from. Without otherId, lists everyone memberId has a balance with. */
+  | { kind: "breakdown"; memberId: string; otherId?: string }
   | { kind: "confirm"; title: string; text: string; ok: string; onOk: () => Promise<unknown> | void }
   | null;
 

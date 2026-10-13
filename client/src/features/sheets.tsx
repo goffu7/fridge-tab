@@ -1,13 +1,14 @@
-import { Camera, Check, Copy, ImageOff, Send, Trash2, X } from "lucide-react";
+import { Camera, Check, ChevronLeft, ChevronRight, Copy, HandCoins, ImageOff, Receipt, Send, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { QuickAmounts, Sheet } from "@/components/ui";
+import { pairBreakdown } from "@shared/ledger";
+import { PersonChip, QuickAmounts, Sheet } from "@/components/ui";
 import { api } from "@/lib/api";
 import { celebrate } from "@/lib/celebrate";
 import { shrinkImage } from "@/lib/image";
 import { bahtText, fmt, parseBaht } from "@/lib/money";
 import { useAction, useBook, type Book } from "@/lib/queries";
-import { closeSheet, useSheet, type SheetState } from "@/lib/sheets";
+import { closeSheet, openSheet, useSheet, type SheetState } from "@/lib/sheets";
 
 /** Mounted once in the app shell; renders whichever sheet is open. */
 export function Sheets() {
@@ -29,6 +30,7 @@ export function Sheets() {
         <img src={api.slipUrl(s.slipId)} alt="Payment slip" className="max-h-[75dvh] w-full rounded-ctl bg-surface-2 object-contain" />
       </Sheet>
     );
+    case "breakdown": return <BreakdownSheet key={key} open={open} book={book} memberId={s.memberId} otherId={s.otherId} />;
     case "confirm": return <ConfirmSheet key={key} open={open} {...s} />;
   }
 }
@@ -238,6 +240,113 @@ function ReviewSheet({ open, book, requestId }: { open: boolean; book: Book; req
           Accept
         </button>
       </div>
+    </Sheet>
+  );
+}
+
+const shortDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+/** Signed amount from the viewer's side: green when it adds to what they're owed. */
+function Signed({ v, className = "" }: { v: number; className?: string }) {
+  return <span className={`num ${v > 0 ? "text-owed" : v < 0 ? "text-owe" : ""} ${className}`}>{v > 0 ? "+" : ""}{fmt(v)}</span>;
+}
+
+/** Explains a balance: which bills and payments make it up. */
+function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book: Book; memberId: string; otherId?: string }) {
+  const me = book.member(memberId);
+  const you = memberId === book.me.id;
+  const meName = you ? "You" : me.name;
+
+  if (!otherId) {
+    const rows = book.members
+      .filter((m) => m.id !== memberId)
+      .map((m) => ({ m, total: pairBreakdown(book, memberId, m.id).total }))
+      .filter((r) => r.total !== 0);
+    const net = book.ledger.net[memberId] ?? 0;
+    return (
+      <Sheet open={open} onClose={closeSheet} title={you ? "Where your balance comes from" : `${me.name}'s balance`}>
+        <p className="text-muted">
+          {net > 0 ? `${you ? "You are" : `${me.name} is`} owed ` : net < 0 ? `${meName} ${you ? "owe" : "owes"} ` : "All square: "}
+          <b className="num text-ink">{fmt(Math.abs(net))}</b>
+          {rows.length ? " in total. Tap a person to see the bills behind it." : ""}
+        </p>
+        <div className="card !gap-0">
+          {rows.map(({ m, total }) => (
+            <button
+              key={m.id}
+              className="grid grid-cols-[1fr_auto_auto] items-center gap-2 border-line py-3 text-left first:pt-0 last:pb-0 [&+&]:border-t"
+              onClick={() => openSheet({ kind: "breakdown", memberId, otherId: m.id })}
+            >
+              <span className="flex flex-wrap items-center gap-1.5">
+                <PersonChip member={m} />
+                <span className="text-sm text-muted">{total > 0 ? `owes ${you ? "you" : me.name}` : `${you ? "you owe" : `${me.name} owes`}`}</span>
+              </span>
+              <Signed v={total} className="font-semibold" />
+              <ChevronRight className="size-4 text-muted" />
+            </button>
+          ))}
+          {!rows.length && <p className="text-center text-muted">Nothing owed either way.</p>}
+        </div>
+      </Sheet>
+    );
+  }
+
+  const other = book.member(otherId);
+  const { entries, total } = pairBreakdown(book, memberId, otherId);
+  const sum = (pick: (amount: number, kind: string) => boolean) => entries.filter((e) => pick(e.amount, e.kind)).reduce((s, e) => s + e.amount, 0);
+  const summary = total > 0 ? `${other.name} owes ${you ? "you" : me.name}` : total < 0 ? `${meName} ${you ? "owe" : "owes"} ${other.name}` : "All square";
+
+  return (
+    <Sheet open={open} onClose={closeSheet} title={`${meName} & ${other.name}`}>
+      <button className="btn btn-ghost self-start !px-2" onClick={() => openSheet({ kind: "breakdown", memberId })}>
+        <ChevronLeft />
+        Everyone
+      </button>
+      <div className="card !gap-1.5 text-sm">
+        <div className="flex justify-between gap-2"><span>{other.name} ate from {you ? "your" : `${me.name}'s`} bills</span><Signed v={sum((v, k) => k === "bill" && v > 0)} /></div>
+        <div className="flex justify-between gap-2"><span>{meName} ate from {other.name}'s bills</span><Signed v={sum((v, k) => k === "bill" && v < 0)} /></div>
+        <div className="flex justify-between gap-2"><span>Payments between you</span><Signed v={sum((_v, k) => k === "payment")} /></div>
+        <div className="flex justify-between gap-2 border-t border-dashed border-line pt-1.5 text-base font-semibold">
+          <span>{summary}</span>
+          <span className="num">{fmt(Math.abs(total))}</span>
+        </div>
+      </div>
+      {!entries.length ? (
+        <p className="text-center text-muted">No shared bills or payments yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {entries.map((e) =>
+            e.kind === "bill" ? (
+              <li key={e.bill.id} className="card !gap-1.5 !p-3">
+                <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                  <Receipt className="size-4 text-muted" />
+                  <span className="min-w-0 truncate">
+                    <b>{e.bill.store}</b> <small className="text-muted">· {shortDate(e.bill.date)} · paid by {book.member(e.bill.payerId).name}</small>
+                  </span>
+                  <Signed v={e.amount} className="font-semibold" />
+                </div>
+                <ul className="flex flex-col gap-0.5 pl-6 text-sm text-muted">
+                  {e.items.map((it, i) => (
+                    <li key={i} className="flex justify-between gap-2">
+                      <span className="min-w-0 truncate">{it.name}</span>
+                      <span className="num">{fmt(it.share)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <li key={e.payment.id} className="card grid grid-cols-[auto_1fr_auto] items-center !gap-2 !p-3">
+                <HandCoins className="size-4 text-muted" />
+                <span className="min-w-0 truncate">
+                  <b>{book.member(e.payment.fromId).name} paid {book.member(e.payment.toId).name}</b>{" "}
+                  <small className="text-muted">· {shortDate(e.payment.date)}{e.payment.note ? ` · ${e.payment.note}` : ""}</small>
+                </span>
+                <Signed v={e.amount} className="font-semibold" />
+              </li>
+            ),
+          )}
+        </ul>
+      )}
     </Sheet>
   );
 }

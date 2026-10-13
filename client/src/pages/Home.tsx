@@ -1,4 +1,4 @@
-import { Clock, Copy, HandCoins, PartyPopper, ScanLine, Send, ShoppingBasket } from "lucide-react";
+import { Clock, Copy, HandCoins, ListTree, PartyPopper, ScanLine, Send, ShoppingBasket } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -74,6 +74,12 @@ export function Home() {
           {book.bills.length} bill{book.bills.length === 1 ? "" : "s"} tracked
           {mySent ? ` · ${fmt(mySent)} sent, waiting for approval` : ""}
         </span>
+        {book.bills.length > 0 && (
+          <button className="btn relative mt-2 self-center" onClick={() => openSheet({ kind: "breakdown", memberId: myId })}>
+            <ListTree />
+            Where it comes from
+          </button>
+        )}
       </section>
 
       {incoming.length > 0 && (
@@ -110,7 +116,13 @@ export function Home() {
                     </div>
                     {pend > 0 && <span className="pill pill-wait self-start"><Clock />{fmt(pend)} waiting for {book.member(d.toId).name}</span>}
                   </div>
-                  <div className="num text-xl font-semibold">{fmt(d.amount)}</div>
+                  <button
+                    className="num text-xl font-semibold underline decoration-dotted underline-offset-4"
+                    aria-label={`See where ${fmt(d.amount)} comes from`}
+                    onClick={() => openSheet({ kind: "breakdown", memberId: d.toId, otherId: d.fromId })}
+                  >
+                    {fmt(d.amount)}
+                  </button>
                   {d.toId === myId && (
                     <div className="col-span-2 flex gap-2">
                       <button className="btn btn-primary flex-1" onClick={() => openSheet({ kind: "record", fromId: d.fromId })}><HandCoins />Got paid</button>
@@ -140,7 +152,7 @@ export function Home() {
               const n = book.ledger.net[m.id] ?? 0;
               return (
                 <div key={m.id} className="grid grid-cols-[1fr_auto] gap-x-2.5 gap-y-0.5 border-line py-2.5 first:pt-0 last:pb-0 [&+&]:border-t">
-                  <div><PersonChip member={m} /></div>
+                  <div><PersonChip member={m} onClick={() => openSheet({ kind: "breakdown", memberId: m.id })} /></div>
                   <div className={`num text-right font-semibold ${n > 0 ? "text-owed" : n < 0 ? "text-owe" : ""}`}>{n > 0 ? "+" : ""}{fmt(n)}</div>
                   <div className="text-sm text-muted">Bought {fmt(book.ledger.paid[m.id] ?? 0)} · ate {fmt(book.ledger.ate[m.id] ?? 0)}</div>
                   <div className="text-right text-sm text-muted">{n > 0 ? "is owed" : n < 0 ? "owes" : "square"}</div>

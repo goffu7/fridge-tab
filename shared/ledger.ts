@@ -86,3 +86,33 @@ export function computeLedger(state: Pick<HouseState, "members" | "bills" | "pay
   debts.sort((x, y) => y.amount - x.amount);
   return { debts, net, paid, ate };
 }
+
+/** One line in a pair breakdown. Amount is signed from `me`'s side: positive = `other` owes `me` more. */
+export type BreakdownEntry =
+  | { kind: "bill"; bill: Bill; items: { name: string; share: number }[]; amount: number }
+  | { kind: "payment"; payment: Payment; amount: number };
+
+/**
+ * Where the balance between two people comes from: every bill where one ate the other's
+ * food, and every accepted payment between them, newest first. Sums to the ledger's debt.
+ */
+export function pairBreakdown(state: Pick<HouseState, "members" | "bills" | "payments">, me: Id, other: Id): { entries: BreakdownEntry[]; total: number } {
+  const known = new Set(state.members.map((m) => m.id));
+  const entries: BreakdownEntry[] = [];
+  for (const bill of state.bills) {
+    const eater = bill.payerId === me ? other : bill.payerId === other ? me : null;
+    if (!eater) continue;
+    const sign = eater === other ? 1 : -1;
+    const items = bill.items.filter((it) => it.eaters.includes(eater)).map((it) => ({ name: it.name, share: itemShares(it, known)[eater] }));
+    if (!items.length) continue;
+    entries.push({ kind: "bill", bill, items, amount: sign * items.reduce((s, it) => s + it.share, 0) });
+  }
+  for (const p of state.payments) {
+    if (p.status !== "accepted") continue;
+    if (p.fromId === other && p.toId === me) entries.push({ kind: "payment", payment: p, amount: -p.amount });
+    else if (p.fromId === me && p.toId === other) entries.push({ kind: "payment", payment: p, amount: p.amount });
+  }
+  const at = (e: BreakdownEntry) => (e.kind === "bill" ? [e.bill.date, e.bill.createdAt] : [e.payment.date, e.payment.createdAt]) as [string, number];
+  entries.sort((x, y) => at(y)[0].localeCompare(at(x)[0]) || at(y)[1] - at(x)[1]);
+  return { entries, total: Math.round(entries.reduce((s, e) => s + e.amount, 0)) };
+}
