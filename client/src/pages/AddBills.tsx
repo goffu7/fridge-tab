@@ -221,7 +221,7 @@ function DraftEditor({ d, members }: { d: Draft; members: Member[] }) {
                     onChange={(e) => setItem(it.id, (i) => ({ ...i, price: e.target.value }))}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem())}
                   />
-                  <button className="grid h-11 w-10 place-items-center text-muted" aria-label={T.removeItem} onClick={() => update(d.id, (x) => ({ ...x, items: x.items.filter((i) => i.id !== it.id) }))}><X className="size-5" /></button>
+                  <button className="grid place-items-center" aria-label={T.removeItem} onClick={() => update(d.id, (x) => ({ ...x, items: x.items.filter((i) => i.id !== it.id) }))}><X className="size-5" /></button>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {members.map((m) => <PersonChip key={m.id} member={m} pressed={it.eaters.includes(m.id)} onClick={() => setItem(it.id, (i) => ({ ...i, eaters: toggle(i.eaters, m.id) }))} />)}

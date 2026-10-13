@@ -1,12 +1,14 @@
 import { useSyncExternalStore } from "react";
 
-export type Skin = "pink" | "vscode" | "dbz";
+export type Skin = "pink" | "vscode" | "dbz" | "cream" | "earth";
 export type Mode = "auto" | "light" | "dark";
 
 export const SKINS: { id: Skin; name: string; swatch: [string, string, string, string] }[] = [
-  { id: "pink", name: "Sakura pink", swatch: ["#FFF4F7", "#E895B2", "#281820", "#E895B2"] },
+  { id: "pink", name: "Sakura pink", swatch: ["#FFF4F7", "#B8466F", "#281820", "#E895B2"] },
   { id: "vscode", name: "VS Code", swatch: ["#FFFFFF", "#005FB8", "#1E1E1E", "#007ACC"] },
   { id: "dbz", name: "Dragon Ball", swatch: ["#EEF4FF", "#F57C00", "#0A0F24", "#FFB020"] },
+  { id: "cream", name: "Cream", swatch: ["#FBF6EC", "#8A6A3B", "#1E1B16", "#E3C79A"] },
+  { id: "earth", name: "Earth", swatch: ["#F4EFE6", "#5F6E44", "#1C1A16", "#A9B98A"] },
 ];
 
 const read = (k: string, d: string) => {

@@ -14,7 +14,7 @@ function DateTile({ iso, dashed }: { iso: string; dashed?: boolean }) {
   useT();
   const d = Number(iso.split("-")[2]);
   return (
-    <div className={`w-[46px] rounded-ctl border border-line py-1 text-center font-mono leading-tight ${dashed ? "border-dashed" : ""}`}>
+    <div className={`w-[46px] rounded-ctl border border-line py-1 text-center font-num leading-tight ${dashed ? "border-dashed" : ""}`}>
       <b className="block text-[17px]">{d}</b>
       <span className="text-[10.5px] text-muted uppercase">{shortMonth(iso)}</span>
     </div>
@@ -49,15 +49,15 @@ export function History() {
         <h2>{T.history}</h2>
         <span className="text-sm text-muted">{T.historyCount(book.bills.length, accepted)}</span>
       </div>
-      <ul className="flex flex-col gap-2.5">
+      <ul className="list">
         {rows.map((r) => {
           if (r.kind === "pay") {
             const p = r.p;
             const req = p.requestId ? book.requests.find((x) => x.id === p.requestId) : undefined;
             const declined = p.status === "declined";
             return (
-              <li key={p.id} className="card !gap-0 !p-0">
-                <div className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 px-3.5 py-3 ${declined ? "opacity-60" : ""}`}>
+              <li key={p.id}>
+                <div className={`list-row ${declined ? "opacity-60" : ""}`}>
                   <DateTile iso={p.date} dashed />
                   <div className="flex min-w-0 flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -75,7 +75,7 @@ export function History() {
                   </div>
                 </div>
                 {p.toId === book.me.id && !declined && (
-                  <div className="flex justify-end px-3.5 pb-3">
+                  <div className="flex justify-end px-4 pb-3">
                     <button className="btn btn-ghost" onClick={() => openSheet({ kind: "record", fromId: p.fromId, paymentId: p.id })}><Pencil />{T.editAmount}</button>
                   </div>
                 )}
@@ -87,8 +87,8 @@ export function History() {
           const shares = billShares(b);
           const payer = book.member(b.payerId);
           return (
-            <li key={b.id} className="card !gap-0 overflow-hidden !p-0">
-              <button className="grid min-h-16 w-full grid-cols-[auto_1fr_auto] items-center gap-3 px-3.5 py-3 text-left" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : b.id)}>
+            <li key={b.id}>
+              <button className="list-row" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : b.id)}>
                 <DateTile iso={b.date} />
                 <div className="flex min-w-0 flex-col">
                   <b className="truncate">{b.store}</b>
@@ -96,10 +96,10 @@ export function History() {
                     {T.nItemsPaidBy(b.items.length)}<span className="font-semibold" style={{ color: `var(--m${payer.color % 6})` }}>{payer.name}</span>
                   </span>
                 </div>
-                <span className="num font-semibold">{fmt(billTotal(b))}</span>
+                <span className="num">{fmt(billTotal(b))}</span>
               </button>
               {isOpen && (
-                <div className="flex flex-col gap-2.5 px-3.5 pb-3.5">
+                <div className="flex flex-col gap-2.5 px-4 pb-4">
                   <div className="flex flex-wrap gap-2">
                     {book.members.filter((m) => shares[m.id]).map((m) => <PersonChip key={m.id} member={m} label={`${m.name} ${fmt(shares[m.id])}`} />)}
                   </div>
