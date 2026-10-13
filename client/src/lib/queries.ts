@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { computeLedger, requestStatus, type RequestStatus } from "@shared/ledger";
 import type { Member, PayRequest, Payment } from "@shared/types";
 import { api } from "./api";
+import { t } from "./i18n";
 
 export const useMe = () => useQuery({ queryKey: ["me"], queryFn: api.me, retry: false, staleTime: 5 * 60_000 });
 
@@ -24,7 +25,7 @@ export function useBook() {
       decision: data.payments.find((p) => p.requestId === r.id) ?? null,
     }));
     const members = new Map<string, Member>(data.members.map((m) => [m.id, m]));
-    const member = (id: string): Member => members.get(id) ?? { id, name: "Someone", promptpay: "", color: 0 };
+    const member = (id: string): Member => members.get(id) ?? { id, name: t().someone, promptpay: "", color: 0 };
     return { ...data, ledger, requests, pending: requests.filter((r) => r.status === "pending"), member };
   }, [data]);
 }

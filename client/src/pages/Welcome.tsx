@@ -3,8 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Avatar } from "@/components/ui";
+import { Avatar, LangToggle } from "@/components/ui";
 import { api } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 
 /** Logged-out screen: tap your name to log in. */
 export function Welcome() {
@@ -12,6 +13,7 @@ export function Welcome() {
   const [busy, setBusy] = useState<string | null>(null);
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const T = useT();
 
   const pick = async (id: string) => {
     setBusy(id);
@@ -27,13 +29,14 @@ export function Welcome() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[440px] flex-col justify-center gap-5 px-4 py-8">
+      <div className="flex justify-end"><LangToggle /></div>
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="!text-4xl">Fridge Tab</h1>
-        <p className="text-muted">Scan 7-Eleven receipts, tick who ate what, settle up later.</p>
+        <h1 className="!text-4xl">{T.appName}</h1>
+        <p className="text-muted">{T.tagline}</p>
       </div>
       <div className="card">
-        <h2>Who are you?</h2>
-        {friends.isPending && <p className="text-center text-muted">Loading…</p>}
+        <h2>{T.whoAreYou}</h2>
+        {friends.isPending && <p className="text-center text-muted">{T.loading}</p>}
         {friends.isError && <p className="note note-err">{(friends.error as Error).message}</p>}
         <div className="flex flex-col gap-2">
           {friends.data?.members.map((m) => (
@@ -41,7 +44,7 @@ export function Welcome() {
               className="flex items-center gap-3 rounded-ctl border-2 border-line p-3 text-left hover:border-accent-strong disabled:opacity-60">
               <Avatar member={{ ...m, promptpay: "" }} size={40} />
               <b className="flex-1 text-lg">{m.name}</b>
-              {busy === m.id ? <span className="text-sm text-muted">Opening…</span> : <ArrowRight className="size-5 text-muted" />}
+              {busy === m.id ? <span className="text-sm text-muted">{T.opening}</span> : <ArrowRight className="size-5 text-muted" />}
             </button>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { Bill, BillInput, Id } from "@shared/types";
 import { api } from "./api";
+import { t } from "./i18n";
 import { shrinkImage } from "./image";
 import { bahtText, parseBaht } from "./money";
 
@@ -47,7 +48,7 @@ function load(): DraftState {
     const s = JSON.parse(localStorage.getItem(KEY) || "null") as DraftState | null;
     if (s && Array.isArray(s.drafts)) {
       s.drafts = s.drafts.map((d) =>
-        d.status === "reading" || d.status === "queued" ? { ...d, status: "error", err: "The scan was interrupted. Pick the photo again, or type the items in." } : d,
+        d.status === "reading" || d.status === "queued" ? { ...d, status: "error", err: t().scanInterrupted } : d,
       );
       return s;
     }
@@ -91,22 +92,22 @@ export const canRescan = (id: string) => files.has(id);
 export const realItems = (d: Draft) => d.items.filter((i) => i.name.trim() || parseBaht(i.price));
 export const draftTotal = (d: Draft) => realItems(d).reduce((s, i) => s + parseBaht(i.price), 0);
 export function draftState(d: Draft): { label: string; tone: "ok" | "wait" | "bad" | "" } {
-  if (d.status === "queued") return { label: "Waiting", tone: "wait" };
-  if (d.status === "reading") return { label: "Reading…", tone: "wait" };
+  if (d.status === "queued") return { label: t().waiting, tone: "wait" };
+  if (d.status === "reading") return { label: t().draftReading, tone: "wait" };
   const items = realItems(d);
-  if (d.status === "error" && !items.length) return { label: "Couldn't read", tone: "bad" };
-  if (!items.length) return { label: "Empty", tone: "" };
+  if (d.status === "error" && !items.length) return { label: t().draftCouldntRead, tone: "bad" };
+  if (!items.length) return { label: t().draftEmpty, tone: "" };
   const n = items.filter((i) => !i.eaters.length).length;
-  return n ? { label: `${n} to tick`, tone: "wait" } : { label: "Ready", tone: "ok" };
+  return n ? { label: t().draftToTick(n), tone: "wait" } : { label: t().draftReady, tone: "ok" };
 }
 export const isReady = (d: Draft) => draftState(d).tone === "ok";
 export function toBillInput(d: Draft): BillInput {
   return {
     date: d.date || today(),
-    store: d.store.trim() || "Shop",
+    store: d.store.trim() || t().shop,
     payerId: d.payerId,
     receiptTotal: d.receiptTotal,
-    items: realItems(d).map((i) => ({ name: i.name.trim() || i.en || "Item", en: i.en, price: parseBaht(i.price), eaters: i.eaters })),
+    items: realItems(d).map((i) => ({ name: i.name.trim() || i.en || t().item, en: i.en, price: parseBaht(i.price), eaters: i.eaters })),
   };
 }
 
@@ -185,7 +186,7 @@ function pump() {
 
 async function scanOne(id: string) {
   const file = files.get(id);
-  if (!file) return update(id, (d) => ({ ...d, status: "error", err: "Pick the photo again to rescan." }));
+  if (!file) return update(id, (d) => ({ ...d, status: "error", err: t().pickAgain }));
   const ctl = new AbortController();
   controllers.set(id, ctl);
   try {
@@ -199,10 +200,10 @@ async function scanOne(id: string) {
       store: r.store ?? d.store,
       receiptTotal: r.total,
       status: items.length ? "manual" : "error",
-      err: items.length ? "" : "No items found on that photo. Try a flatter, sharper photo.",
+      err: items.length ? "" : t().noItemsFound,
     }));
   } catch (e) {
-    const err = (e as Error).name === "AbortError" ? "Scan stopped." : (e as Error).message || "Couldn't read the receipt.";
+    const err = (e as Error).name === "AbortError" ? t().scanStopped : (e as Error).message || t().couldntReadReceipt;
     update(id, (d) => ({ ...d, status: "error", err }));
   } finally {
     controllers.delete(id);

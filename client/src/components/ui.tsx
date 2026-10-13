@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { Drawer } from "vaul";
 import type { Member } from "@shared/types";
+import { LANGS, setLang, useLang, useT } from "@/lib/i18n";
 
 const initial = (name: string) => (name.trim()[0] || "?").toUpperCase();
 
@@ -42,6 +43,7 @@ export function Empty({ icon, title, children }: { icon: ReactNode; title: strin
 
 /** Bottom sheet on phones, centred dialog on wide screens. */
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  const T = useT();
   return (
     <Drawer.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <Drawer.Portal>
@@ -52,7 +54,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
             <Drawer.Title asChild>
               <h2 className="flex-1">{title}</h2>
             </Drawer.Title>
-            <button type="button" className="btn btn-ghost !min-h-10 !px-2" onClick={onClose} aria-label="Close">
+            <button type="button" className="btn btn-ghost !min-h-10 !px-2" onClick={onClose} aria-label={T.close}>
               <X />
             </button>
           </div>
@@ -66,15 +68,28 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
 /** Quick amount buttons: all, half, and round numbers below the full amount. */
 export function QuickAmounts({ full, onPick, fmt }: { full: number; onPick: (satang: number) => void; fmt: (n: number) => string }) {
   const half = Math.round(full / 200) * 100;
+  const T = useT();
   const opts = [full, half, 2000, 5000, 10000].filter((v, i, a) => v > 0 && (i < 2 || v < full) && a.indexOf(v) === i);
   return (
     <div className="flex flex-wrap gap-2">
       {opts.map((v, i) => (
         <button key={v} type="button" className="btn !min-h-[38px] flex-1 !px-3 !text-[13.5px]" onClick={() => onPick(v)}>
-          {i === 0 ? "All " : i === 1 ? "Half " : ""}
+          {i === 0 ? T.quickAll : i === 1 ? T.quickHalf : ""}
           {fmt(v)}
         </button>
       ))}
     </div>
+  );
+}
+
+/** Round header button that flips between English and Thai. */
+export function LangToggle() {
+  const lang = useLang();
+  const T = useT();
+  const next = lang === "en" ? "th" : "en";
+  return (
+    <button className="btn !size-[42px] !rounded-full !p-0 font-mono text-[13px] font-bold" aria-label={T.langSwitch} onClick={() => setLang(next)}>
+      {LANGS.find((l) => l.id === lang)!.short}
+    </button>
   );
 }

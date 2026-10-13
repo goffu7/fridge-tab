@@ -5,6 +5,7 @@ import { pairBreakdown } from "@shared/ledger";
 import { PersonChip, QuickAmounts, Sheet } from "@/components/ui";
 import { api } from "@/lib/api";
 import { celebrate } from "@/lib/celebrate";
+import { shortDate, useT, type Dict } from "@/lib/i18n";
 import { shrinkImage } from "@/lib/image";
 import { bahtText, fmt, parseBaht } from "@/lib/money";
 import { useAction, useBook, type Book } from "@/lib/queries";
@@ -14,6 +15,7 @@ import { closeSheet, openSheet, useSheet, type SheetState } from "@/lib/sheets";
 export function Sheets() {
   const sheet = useSheet();
   const book = useBook();
+  const T = useT();
   // Keep the last sheet's content on screen while it animates closed.
   const last = useRef<SheetState>(null);
   if (sheet) last.current = sheet;
@@ -26,8 +28,8 @@ export function Sheets() {
     case "payback": return <PaybackSheet key={key} open={open} book={book} toId={s.toId} />;
     case "review": return <ReviewSheet key={key} open={open} book={book} requestId={s.requestId} />;
     case "slip": return (
-      <Sheet open={open} onClose={closeSheet} title="Payment slip">
-        <img src={api.slipUrl(s.slipId)} alt="Payment slip" className="max-h-[75dvh] w-full rounded-ctl bg-surface-2 object-contain" />
+      <Sheet open={open} onClose={closeSheet} title={T.paymentSlip}>
+        <img src={api.slipUrl(s.slipId)} alt={T.paymentSlip} className="max-h-[75dvh] w-full rounded-ctl bg-surface-2 object-contain" />
       </Sheet>
     );
     case "breakdown": return <BreakdownSheet key={key} open={open} book={book} memberId={s.memberId} otherId={s.otherId} />;
@@ -44,11 +46,11 @@ function AmountField({ value, onChange, label }: { value: string; onChange: (v: 
   );
 }
 
-function leftText(owed: number, paid: number) {
+function leftText(T: Dict, owed: number, paid: number) {
   const left = owed - paid;
-  if (left > 0) return `${fmt(left)} will still be owed.`;
-  if (left < 0) return `That's ${fmt(-left)} more than owed. The extra becomes a credit.`;
-  return "This clears it completely.";
+  if (left > 0) return T.leftOwed(fmt(left));
+  if (left < 0) return T.leftCredit(fmt(-left));
+  return T.clearsAll;
 }
 
 /** The person owed records money they received (or edits an earlier record). */
@@ -60,49 +62,50 @@ function RecordSheet({ open, book, fromId, paymentId }: { open: boolean; book: B
   const [note, setNote] = useState(editing?.note ?? "");
   const [confirmDel, setConfirmDel] = useState(false);
   const action = useAction();
+  const T = useT();
   const from = book.member(fromId);
   const sat = parseBaht(amount);
 
   const save = async () => {
-    if (sat <= 0) return toast.error("Enter an amount above ฿0.");
+    if (sat <= 0) return toast.error(T.amountAbove0);
     const ok = editing
-      ? await action.run(() => api.editPayment(editing.id, { amount: sat, note }), "Payment updated")
-      : await action.run(() => api.recordPayment({ fromId, amount: sat, note }), `Recorded ${fmt(sat)} from ${from.name}`);
+      ? await action.run(() => api.editPayment(editing.id, { amount: sat, note }), T.paymentUpdated)
+      : await action.run(() => api.recordPayment({ fromId, amount: sat, note }), T.recordedFrom(fmt(sat), from.name));
     if (ok) {
       closeSheet();
       if (!editing && sat >= owed) celebrate();
     }
   };
   const del = async () => {
-    if (editing && (await action.run(() => api.deletePayment(editing.id), "Payment deleted"))) closeSheet();
+    if (editing && (await action.run(() => api.deletePayment(editing.id), T.paymentDeleted))) closeSheet();
   };
 
   return (
-    <Sheet open={open} onClose={closeSheet} title={editing ? "Edit payment" : `Got paid by ${from.name}`}>
+    <Sheet open={open} onClose={closeSheet} title={editing ? T.editPayment : T.gotPaidBy(from.name)}>
       <p className="text-muted">
-        {from.name} {editing ? "owed" : "owes"} you <b className="num text-ink">{fmt(owed)}</b>. Enter what you actually received; the rest stays on the tab.
+        {T.recordIntro(from.name, !!editing, <b className="num text-ink">{fmt(owed)}</b>)}
       </p>
-      <AmountField label="Amount received (฿)" value={amount} onChange={setAmount} />
+      <AmountField label={T.amountReceived} value={amount} onChange={setAmount} />
       <QuickAmounts full={owed} onPick={(v) => setAmount(bahtText(v))} fmt={fmt} />
       <label className="field">
-        <span>Note (optional)</span>
-        <input className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Cash, transfer…" />
+        <span>{T.noteOptional}</span>
+        <input className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder={T.notePhCash} />
       </label>
-      <p className="text-sm text-muted">{leftText(owed, sat)}</p>
+      <p className="text-sm text-muted">{leftText(T, owed, sat)}</p>
       <button className="btn btn-primary btn-lg" disabled={action.pending} onClick={save}>
         <Check />
-        {editing ? "Save changes" : "Record payment"}
+        {editing ? T.saveChanges : T.recordPayment}
       </button>
       {editing &&
         (confirmDel ? (
           <div className="note note-err">
-            <span className="flex-1">Delete this payment? The full amount goes back on the tab.</span>
-            <button className="btn btn-danger" onClick={del}>Delete</button>
+            <span className="flex-1">{T.deletePaymentQ}</span>
+            <button className="btn btn-danger" onClick={del}>{T.delete}</button>
           </div>
         ) : (
           <button className="btn btn-ghost btn-danger" onClick={() => setConfirmDel(true)}>
             <Trash2 />
-            Delete payment
+            {T.deletePayment}
           </button>
         ))}
     </Sheet>
@@ -121,6 +124,7 @@ function PaybackSheet({ open, book, toId }: { open: boolean; book: Book; toId: s
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const action = useAction();
+  const T = useT();
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
 
   const pick = async (f: File | undefined) => {
@@ -131,66 +135,65 @@ function PaybackSheet({ open, book, toId }: { open: boolean; book: Book; toId: s
       setSlip(small);
       setPreview(URL.createObjectURL(small));
     } catch {
-      toast.error("That photo couldn't be used. Try a screenshot of the slip.");
+      toast.error(T.photoUnusable);
     } finally {
       setBusy(false);
     }
   };
   const send = async () => {
     const sat = parseBaht(amount);
-    if (sat <= 0) return toast.error("Enter an amount above ฿0.");
-    if (await action.run(() => api.sendRequest({ toId, amount: sat, note, slip }), `Sent to ${to.name} to accept`)) closeSheet();
+    if (sat <= 0) return toast.error(T.amountAbove0);
+    if (await action.run(() => api.sendRequest({ toId, amount: sat, note, slip }), T.sentToAccept(to.name))) closeSheet();
   };
   const copyPP = async () => {
     try {
       await navigator.clipboard.writeText(to.promptpay);
-      toast.success("PromptPay number copied");
+      toast.success(T.ppCopied);
     } catch {
-      toast.error("Couldn't copy. Select the number instead.");
+      toast.error(T.couldntCopy);
     }
   };
 
   return (
-    <Sheet open={open} onClose={closeSheet} title={`Pay back ${to.name}`}>
+    <Sheet open={open} onClose={closeSheet} title={T.payBackTitle(to.name)}>
       <p className="text-muted">
-        You owe <b className="num text-ink">{fmt(owed)}</b>
-        {waiting ? <> ({fmt(waiting)} already sent, waiting)</> : null}. Send what you paid and {to.name} accepts it.
+        {T.paybackIntro(<b className="num text-ink">{fmt(owed)}</b>, waiting ? fmt(waiting) : null, to.name)}
       </p>
-      <AmountField label="Amount you paid (฿)" value={amount} onChange={setAmount} />
+      <AmountField label={T.amountYouPaid} value={amount} onChange={setAmount} />
       <QuickAmounts full={owed} onPick={(v) => setAmount(bahtText(v))} fmt={fmt} />
       {to.promptpay && (
         <div className="note note-info">
           <span className="flex-1">
-            PromptPay for {to.name}: <b className="num">{to.promptpay}</b>
+            {T.promptpayFor(to.name)}<b className="num">{to.promptpay}</b>
           </span>
           <button className="btn" onClick={copyPP}>
             <Copy />
-            Copy
+            {T.copy}
           </button>
         </div>
       )}
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => (pick(e.target.files?.[0]), (e.target.value = ""))} />
       {preview ? (
         <>
-          <img src={preview} alt="Your slip" className="max-h-[40dvh] w-full rounded-ctl bg-surface-2 object-contain" />
+          <img src={preview} alt={T.yourSlip} className="max-h-[40dvh] w-full rounded-ctl bg-surface-2 object-contain" />
           <button className="btn btn-ghost" onClick={() => (setSlip(null), setPreview(null))}>
             <X />
-            Remove photo
+            {T.removePhoto}
           </button>
         </>
       ) : (
         <button className="btn w-full" disabled={busy} onClick={() => fileRef.current?.click()}>
           <Camera />
-          {busy ? "Preparing photo…" : "Attach slip photo"}
+          {busy ? T.preparingPhoto : T.attachSlip}
         </button>
       )}
       <label className="field">
-        <span>Note (optional)</span>
-        <input className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Paid by transfer" />
+        <span>{T.noteOptional}</span>
+        <input className="input" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder={T.notePhTransfer} />
       </label>
       <button className="btn btn-primary btn-lg" disabled={busy || action.pending} onClick={send}>
         <Send />
-        Send to {to.name}
+        {T.sendTo(to.name)}
       </button>
     </Sheet>
   );
@@ -201,15 +204,16 @@ function ReviewSheet({ open, book, requestId }: { open: boolean; book: Book; req
   const r = book.requests.find((x) => x.id === requestId);
   const [amount, setAmount] = useState(bahtText(r?.amount ?? 0));
   const action = useAction();
+  const T = useT();
   if (!r) return null;
   const from = book.member(r.fromId);
   const debt = book.ledger.debts.find((d) => d.fromId === r.fromId && d.toId === r.toId)?.amount ?? 0;
   const decide = async (accept: boolean) => {
     const sat = parseBaht(amount);
-    if (accept && sat <= 0) return toast.error("Enter an amount above ฿0, or decline.");
+    if (accept && sat <= 0) return toast.error(T.amountAbove0OrDecline);
     const ok = await action.run(
       () => (accept ? api.acceptRequest(r.id, sat) : api.declineRequest(r.id)),
-      accept ? `Accepted ${fmt(sat)} from ${from.name}` : "Declined",
+      accept ? T.acceptedFrom(fmt(sat), from.name) : T.declined,
     );
     if (ok) {
       closeSheet();
@@ -217,34 +221,32 @@ function ReviewSheet({ open, book, requestId }: { open: boolean; book: Book; req
     }
   };
   return (
-    <Sheet open={open} onClose={closeSheet} title={`${from.name} paid you`}>
+    <Sheet open={open} onClose={closeSheet} title={T.paidYou(from.name)}>
       {r.slipId ? (
-        <img src={api.slipUrl(r.slipId)} alt="Payment slip" className="max-h-[50dvh] w-full rounded-ctl bg-surface-2 object-contain" />
+        <img src={api.slipUrl(r.slipId)} alt={T.paymentSlip} className="max-h-[50dvh] w-full rounded-ctl bg-surface-2 object-contain" />
       ) : (
         <div className="note">
           <ImageOff />
-          <span>No slip attached.</span>
+          <span>{T.noSlip}</span>
         </div>
       )}
       <p className="text-muted">
-        They owe you <b className="num text-ink">{fmt(debt)}</b> in total.{r.note ? ` Note: “${r.note}”.` : ""} Change the amount if it doesn't match the slip.
+        {T.reviewIntro(<b className="num text-ink">{fmt(debt)}</b>, r.note)}
       </p>
-      <AmountField label="Amount received (฿)" value={amount} onChange={setAmount} />
+      <AmountField label={T.amountReceived} value={amount} onChange={setAmount} />
       <div className="flex gap-2">
         <button className="btn btn-danger btn-lg flex-1" disabled={action.pending} onClick={() => decide(false)}>
           <X />
-          Decline
+          {T.decline}
         </button>
         <button className="btn btn-primary btn-lg flex-1" disabled={action.pending} onClick={() => decide(true)}>
           <Check />
-          Accept
+          {T.accept}
         </button>
       </div>
     </Sheet>
   );
 }
-
-const shortDate = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 /** Signed amount from the viewer's side: green when it adds to what they're owed. */
 function Signed({ v, className = "" }: { v: number; className?: string }) {
@@ -255,7 +257,8 @@ function Signed({ v, className = "" }: { v: number; className?: string }) {
 function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book: Book; memberId: string; otherId?: string }) {
   const me = book.member(memberId);
   const you = memberId === book.me.id;
-  const meName = you ? "You" : me.name;
+  const T = useT();
+  const meName = you ? T.you : me.name;
 
   if (!otherId) {
     const rows = book.members
@@ -264,11 +267,11 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
       .filter((r) => r.total !== 0);
     const net = book.ledger.net[memberId] ?? 0;
     return (
-      <Sheet open={open} onClose={closeSheet} title={you ? "Where your balance comes from" : `${me.name}'s balance`}>
+      <Sheet open={open} onClose={closeSheet} title={you ? T.whereYourBalance : T.balanceOf(me.name)}>
         <p className="text-muted">
-          {net > 0 ? `${you ? "You are" : `${me.name} is`} owed ` : net < 0 ? `${meName} ${you ? "owe" : "owes"} ` : "All square: "}
+          {net > 0 ? T.balOwed(you, me.name) : net < 0 ? T.balOwes(you, me.name) : T.balSquare}
           <b className="num text-ink">{fmt(Math.abs(net))}</b>
-          {rows.length ? " in total. Tap a person to see the bills behind it." : ""}
+          {rows.length ? T.balTail : ""}
         </p>
         <div className="card !gap-0">
           {rows.map(({ m, total }) => (
@@ -279,13 +282,13 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
             >
               <span className="flex flex-wrap items-center gap-1.5">
                 <PersonChip member={m} />
-                <span className="text-sm text-muted">{total > 0 ? `owes ${you ? "you" : me.name}` : `${you ? "you owe" : `${me.name} owes`}`}</span>
+                <span className="text-sm text-muted">{total > 0 ? T.rowOwesThem(you, me.name) : T.rowTheyOwe(you, me.name)}</span>
               </span>
               <Signed v={total} className="font-semibold" />
               <ChevronRight className="size-4 text-muted" />
             </button>
           ))}
-          {!rows.length && <p className="text-center text-muted">Nothing owed either way.</p>}
+          {!rows.length && <p className="text-center text-muted">{T.nothingOwed}</p>}
         </div>
       </Sheet>
     );
@@ -294,25 +297,25 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
   const other = book.member(otherId);
   const { entries, total } = pairBreakdown(book, memberId, otherId);
   const sum = (pick: (amount: number, kind: string) => boolean) => entries.filter((e) => pick(e.amount, e.kind)).reduce((s, e) => s + e.amount, 0);
-  const summary = total > 0 ? `${other.name} owes ${you ? "you" : me.name}` : total < 0 ? `${meName} ${you ? "owe" : "owes"} ${other.name}` : "All square";
+  const summary = total > 0 ? T.sumOwesMe(other.name, you, me.name) : total < 0 ? T.sumIOwe(you, me.name, other.name) : T.allSquare;
 
   return (
     <Sheet open={open} onClose={closeSheet} title={`${meName} & ${other.name}`}>
       <button className="btn btn-ghost self-start !px-2" onClick={() => openSheet({ kind: "breakdown", memberId })}>
         <ChevronLeft />
-        Everyone
+        {T.everyone}
       </button>
       <div className="card !gap-1.5 text-sm">
-        <div className="flex justify-between gap-2"><span>{other.name} ate from {you ? "your" : `${me.name}'s`} bills</span><Signed v={sum((v, k) => k === "bill" && v > 0)} /></div>
-        <div className="flex justify-between gap-2"><span>{meName} ate from {other.name}'s bills</span><Signed v={sum((v, k) => k === "bill" && v < 0)} /></div>
-        <div className="flex justify-between gap-2"><span>Payments between you</span><Signed v={sum((_v, k) => k === "payment")} /></div>
+        <div className="flex justify-between gap-2"><span>{T.ateFromMine(other.name, you, me.name)}</span><Signed v={sum((v, k) => k === "bill" && v > 0)} /></div>
+        <div className="flex justify-between gap-2"><span>{T.iAteFrom(meName, other.name)}</span><Signed v={sum((v, k) => k === "bill" && v < 0)} /></div>
+        <div className="flex justify-between gap-2"><span>{T.paymentsBetween}</span><Signed v={sum((_v, k) => k === "payment")} /></div>
         <div className="flex justify-between gap-2 border-t border-dashed border-line pt-1.5 text-base font-semibold">
           <span>{summary}</span>
           <span className="num">{fmt(Math.abs(total))}</span>
         </div>
       </div>
       {!entries.length ? (
-        <p className="text-center text-muted">No shared bills or payments yet.</p>
+        <p className="text-center text-muted">{T.noShared}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {entries.map((e) =>
@@ -321,7 +324,7 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
                 <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
                   <Receipt className="size-4 text-muted" />
                   <span className="min-w-0 truncate">
-                    <b>{e.bill.store}</b> <small className="text-muted">· {shortDate(e.bill.date)} · paid by {book.member(e.bill.payerId).name}</small>
+                    <b>{e.bill.store}</b> <small className="text-muted">· {shortDate(e.bill.date)} · {T.paidBy(book.member(e.bill.payerId).name)}</small>
                   </span>
                   <Signed v={e.amount} className="font-semibold" />
                 </div>
@@ -338,7 +341,7 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
               <li key={e.payment.id} className="card grid grid-cols-[auto_1fr_auto] items-center !gap-2 !p-3">
                 <HandCoins className="size-4 text-muted" />
                 <span className="min-w-0 truncate">
-                  <b>{book.member(e.payment.fromId).name} paid {book.member(e.payment.toId).name}</b>{" "}
+                  <b>{T.xPaidY(book.member(e.payment.fromId).name, book.member(e.payment.toId).name)}</b>{" "}
                   <small className="text-muted">· {shortDate(e.payment.date)}{e.payment.note ? ` · ${e.payment.note}` : ""}</small>
                 </span>
                 <Signed v={e.amount} className="font-semibold" />
@@ -353,11 +356,12 @@ function BreakdownSheet({ open, book, memberId, otherId }: { open: boolean; book
 
 function ConfirmSheet({ open, title, text, ok, onOk }: Extract<SheetState, { kind: "confirm" }> & { open: boolean }) {
   const [busy, setBusy] = useState(false);
+  const T = useT();
   return (
     <Sheet open={open} onClose={closeSheet} title={title}>
       <p className="text-muted">{text}</p>
       <div className="flex gap-2">
-        <button className="btn btn-lg flex-1" onClick={closeSheet}>Keep</button>
+        <button className="btn btn-lg flex-1" onClick={closeSheet}>{T.keep}</button>
         <button
           className="btn btn-danger btn-lg flex-1"
           disabled={busy}

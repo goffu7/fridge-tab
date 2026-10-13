@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import type { BillInput, HouseState, LoginInfo, MeResponse, ScanResult } from "@shared/types";
 
 export class ApiError extends Error {
@@ -18,10 +19,10 @@ async function call<T>(method: string, path: string, body?: unknown, signal?: Ab
     res = await fetch(`/api${path}`, init);
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
-    throw new ApiError(0, "Can't reach the server. Check your connection.");
+    throw new ApiError(0, t().cantReach);
   }
   if (!res.ok) {
-    let msg = "Something went wrong. Try again.";
+    let msg = t().somethingWrong;
     try {
       msg = (await res.json()).error || msg;
     } catch {

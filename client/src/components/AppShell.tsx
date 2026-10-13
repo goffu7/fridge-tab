@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import { Sheets } from "@/features/sheets";
 import { enqueueScans } from "@/lib/drafts";
 import { useBook, useMe } from "@/lib/queries";
+import { t, useT } from "@/lib/i18n";
 import { setTheme, useTheme, type Mode } from "@/lib/theme";
-import { Avatar } from "./ui";
+import { Avatar, LangToggle } from "./ui";
 
 const SCAN_INPUT = "scan-input";
 const CAMERA_INPUT = "camera-input";
@@ -17,12 +18,12 @@ export const takeReceiptPhoto = () => document.getElementById(CAMERA_INPUT)?.cli
 
 const MODE_ICON = { auto: SunMoon, light: Sun, dark: Moon };
 const NEXT_MODE: Record<Mode, Mode> = { auto: "light", light: "dark", dark: "auto" };
-const MODE_LABEL: Record<Mode, string> = { auto: "Following your device", light: "Light mode", dark: "Dark mode" };
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: meData } = useMe();
   const book = useBook();
   const theme = useTheme();
+  const T = useT();
   const navigate = useNavigate();
   const ModeIcon = MODE_ICON[theme.mode];
   const scanEnabled = meData?.scanEnabled ?? false;
@@ -31,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const onFiles = (files: FileList | null) => {
     if (!files?.length || !book) return;
     const n = enqueueScans(Array.from(files), book.me.id);
-    if (n > 1) toast(`Reading ${n} receipts. Each one becomes its own bill.`);
+    if (n > 1) toast(t().readingNReceipts(n));
     navigate("/add");
   };
 
@@ -44,22 +45,23 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="mark skin-only only-vscode !rounded bg-accent font-mono text-sm font-extrabold text-white">{"{}"}</span>
             <span className="mark mark-dbz skin-only only-dbz" aria-hidden>★★<br />★★</span>
             <div className="min-w-0">
-              <h1 className="whitespace-nowrap">Fridge Tab</h1>
+              <h1 className="whitespace-nowrap">{T.appName}</h1>
               <p className="truncate text-xs text-muted">{book?.house.name ?? ""}</p>
             </div>
           </div>
+          <LangToggle />
           <button
             className="btn !size-[42px] !rounded-full !p-0"
-            aria-label={`Theme: ${theme.mode}. Change`}
+            aria-label={T.themeChange(T.modes[theme.mode])}
             onClick={() => {
               setTheme({ mode: NEXT_MODE[theme.mode] });
-              toast(MODE_LABEL[NEXT_MODE[theme.mode]]);
+              toast(T.modeLabel[NEXT_MODE[theme.mode]]);
             }}
           >
             <ModeIcon />
           </button>
           {book && (
-            <NavLink to="/settings" aria-label={`You are ${book.me.name}. Settings`}>
+            <NavLink to="/settings" aria-label={T.youAreSettings(book.me.name)}>
               <Avatar member={book.me} />
             </NavLink>
           )}
@@ -68,17 +70,17 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="mx-auto flex max-w-[640px] flex-col gap-[18px] px-4 pt-1.5 pb-[calc(140px+env(safe-area-inset-bottom))]">{children}</main>
 
-      <nav className="tabbar" aria-label="Sections">
+      <nav className="tabbar" aria-label={T.sections}>
         <div className="mx-auto grid max-w-[640px] grid-cols-5 items-end">
-          <Tab to="/" icon={<House />} label="Home" />
-          <Tab to="/history" icon={<Receipt />} label="History" />
+          <Tab to="/" icon={<House />} label={T.navHome} />
+          <Tab to="/history" icon={<Receipt />} label={T.navHistory} />
           <div>
-            <button className="fab" aria-label={scanEnabled ? "Scan receipts" : "Add a bill"} onClick={() => navigate("/add")}>
+            <button className="fab" aria-label={scanEnabled ? T.scanReceipts : T.addABill} onClick={() => navigate("/add")}>
               {scanEnabled ? <ScanLine /> : <Plus />}
             </button>
           </div>
-          <Tab to="/requests" icon={<Inbox />} label="Requests" badge={waiting} />
-          <Tab to="/settings" icon={<Settings />} label="Settings" />
+          <Tab to="/requests" icon={<Inbox />} label={T.navRequests} badge={waiting} />
+          <Tab to="/settings" icon={<Settings />} label={T.navSettings} />
         </div>
       </nav>
 
