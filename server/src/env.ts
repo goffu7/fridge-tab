@@ -11,5 +11,5 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL ?? "file:data/fridge-tab.db",
   databaseAuthToken: process.env.DATABASE_AUTH_TOKEN || undefined,
   geminiKey: process.env.GEMINI_API_KEY || "",
-  geminiModel: process.env.GEMINI_MODEL || "gemini-flash-latest",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-flash-lite-latest",
 };

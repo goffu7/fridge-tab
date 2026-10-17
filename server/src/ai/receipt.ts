@@ -51,7 +51,10 @@ export async function readReceipt(image: Buffer, mime: string): Promise<ScanResu
   } catch {
     throw new HttpError(504, "The receipt reader took too long. Try again.");
   }
-  if (res.status === 429) throw new HttpError(429, "The free receipt reader is busy. Wait a minute and try again.");
+  if (res.status === 429) {
+    console.error("Gemini 429", (await res.text()).slice(0, 500));
+    throw new HttpError(429, "The free receipt reader is busy. Wait a minute and try again.");
+  }
   if (!res.ok) {
     console.error("Gemini error", res.status, (await res.text()).slice(0, 500));
     throw new HttpError(502, "The receipt reader failed. Try again, or type the items in.");
